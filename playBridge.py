@@ -30,48 +30,76 @@ def dealCards(deck, hand1, hand2, hand3, hand4):
         counter += 1
         hand4.append(deck[counter])
 
-def organizeBySuit(hand):
+def organizeHand(hand):
+    cardType = ""
+    nextCardType = ""
+    suit = ""
+    nextSuit = ""
     for i in range(0, 13):
-        # if i != 12:
-        #     print(f"Comparing {hand[i]} and {hand[i + 1]}")        
-        if i != 12 and suits.index(hand[i][-1]) > suits.index(hand[i + 1][-1]):
+        if i == 12:
+            continue
+
+        suit = hand[i][-1]
+        nextSuit = hand[i + 1][-1]
+
+        if len(hand[i]) == 3:
+            cardType = hand[i][0:2]
+        else:
+            cardType = hand[i][0]
+
+        if len(hand[i + 1]) == 3:
+            nextCardType = hand[i + 1][0:2]
+        else:
+            nextCardType = hand[i + 1][0]        
+      
+        if suits.index(suit) < suits.index(nextSuit):
             hand[i], hand[i + 1] = hand[i + 1], hand[i]
-            # print("Swapped.")
-        # elif i != 12:
-        #     print("Did not swap.")
+        elif suits.index(suit) == suits.index(nextSuit) and cardTypes.index(cardType) < cardTypes.index(nextCardType):
+            hand[i], hand[i + 1] = hand[i + 1], hand[i]
+
+def printCards(cardList):
+    stringToPrint = ""
+    for card in cardList:
+        stringToPrint += card + " "
+    print(stringToPrint)
+
+def displayHand(hand):
+    spades = []
+    hearts = []
+    diamonds = []
+    clubs = []    
+    for card in hand:
+        if card[-1] == 'S':
+            spades.append(card)
+        elif card[-1] == 'H':
+            hearts.append(card)
+        elif card[-1] == 'D':
+            diamonds.append(card)
+        elif card[-1] == 'C':
+            clubs.append(card)
+    printCards(spades)
+    printCards(hearts)
+    printCards(diamonds)
+    printCards(clubs)
 
 def main():
     print("Playing bridge.")
     
+    # Deal cards
     deck = []
     fillDeck(deck)
-    # print("Here is the deck:")
-    # print(deck)
-    # print(len(deck))
-
     deck = shuffleDeck(deck)
-    # print("Here is the shuffled deck:")
-    # print(deck)
-    # print(len(deck))
-
     playerHand = []
     leftOpponentHand = []
     partnerHand = []
     rightOpponentHand = []
     dealCards(deck, playerHand, leftOpponentHand, partnerHand, rightOpponentHand)
-    # print("Player hand:")
-    # print(playerHand)
-    # print("Left opponent hand:")
-    # print(leftOpponentHand)
-    # print("Partner hand:")
-    # print(partnerHand)
-    # print("Right opponent hand:")
-    # print(rightOpponentHand)
 
+    # Organize and display player hand
     for i in range(0, len(playerHand)):
-        organizeBySuit(playerHand)
+        organizeHand(playerHand)
     print("Player hand:")
-    print(playerHand)
+    displayHand(playerHand)
 
 if __name__ == "__main__":
     main()
