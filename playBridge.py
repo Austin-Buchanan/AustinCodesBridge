@@ -1,7 +1,9 @@
 import random
 
+# global constants
 suits = ['C', 'D', 'H', 'S']
 cardTypes = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+players = ["user", "LHO", "partner", "RHO"]
 
 def fillDeck(deck):
     for suit in suits: 
@@ -82,24 +84,67 @@ def displayHand(hand):
     printCards(diamonds)
     printCards(clubs)
 
-def main():
-    print("Playing bridge.")
+def findWhoLeads(tricksPlayed, lastTrickWinner, declarer):
+    if tricksPlayed > 0:
+        return lastTrickWinner
+    elif declarer == "RHO":
+        return "user"
+    else:
+        return players[players.index(declarer) + 1]
     
-    # Deal cards
+def cpuLeads(cpuHand, cardsPlayedInTrick):
+    cardToPlay = random.choice(cpuHand)
+    cpuHand.remove(cardToPlay)
+    cardsPlayedInTrick.append(cardToPlay)
+
+def userLeads(userHand, cardsPlayedInTrick):
+    displayHand(userHand)
+    cardToPlay = input("Which card do you want to play?")    
+
+def main():
+    # variables
     deck = []
-    fillDeck(deck)
-    deck = shuffleDeck(deck)
-    playerHand = []
+    userHand = []
     leftOpponentHand = []
     partnerHand = []
     rightOpponentHand = []
-    dealCards(deck, playerHand, leftOpponentHand, partnerHand, rightOpponentHand)
+    cardsPlayedInTrick = []
+    tricksPlayed = 0
+    lastTrickWinner = ""
+    whoLeads = ""
+    whoPlayedLast = ""
+    whoPlaysNext = ""
+    suitLead = ""
 
-    # Organize and display player hand
-    for i in range(0, len(playerHand)):
-        organizeHand(playerHand)
-    print("Player hand:")
-    displayHand(playerHand)
+    print("Playing bridge.")
+    
+    # Deal cards
+    print("Dealing cards.")
+    fillDeck(deck)
+    deck = shuffleDeck(deck)
+    dealCards(deck, userHand, leftOpponentHand, partnerHand, rightOpponentHand)
+
+    # Organize and display user hand
+    print("Organizing your hand.")
+    for i in range(0, len(userHand)):
+        organizeHand(userHand)
+    print("Your hand:")
+    displayHand(userHand)
+
+    # randomly pick a declarer. Change to non-random after bidding is introduced.
+    declarer = random.choice(players)
+    print(f"{declarer} is the declarer.")
+
+    # start playing
+    while tricksPlayed < 13:
+        whoLeads = findWhoLeads(tricksPlayed, lastTrickWinner, declarer)
+        print(f"{whoLeads} leads.")
+        if whoLeads == "user":
+
+            
+
+        tricksPlayed += 1
+
 
 if __name__ == "__main__":
     main()
