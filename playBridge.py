@@ -99,7 +99,10 @@ def cpuLeads(cpuHand, cardsPlayedInTrick):
 
 def userLeads(userHand, cardsPlayedInTrick):
     displayHand(userHand)
-    cardToPlay = input("Which card do you want to play?")    
+    cardToPlay = input("Which card do you want to play?")
+    if cardToPlay in userHand:
+        userHand.remove(cardToPlay)
+        cardsPlayedInTrick.append(cardToPlay)    
 
 def main():
     # variables
@@ -139,10 +142,21 @@ def main():
     while tricksPlayed < 13:
         whoLeads = findWhoLeads(tricksPlayed, lastTrickWinner, declarer)
         print(f"{whoLeads} leads.")
+        # "LHO", "partner", "RHO"
         if whoLeads == "user":
-
-            
-
+            userLeads(userHand, cardsPlayedInTrick)
+            whoPlaysNext = "LHO" 
+        elif whoLeads == "LHO":
+            cpuLeads(leftOpponentHand, cardsPlayedInTrick)
+            whoPlaysNext = "partner"
+        elif whoLeads == "partner":
+            cpuLeads(partnerHand, cardsPlayedInTrick)
+            whoPlaysNext = "RHO"
+        elif whoLeads == "RHO":
+            cpuLeads(rightOpponentHand, cardsPlayedInTrick)
+            whoPlaysNext = "user"
+        whoPlayedLast = whoLeads   
+        suitLead = cardsPlayedInTrick[0][-1]
         tricksPlayed += 1
 
 
