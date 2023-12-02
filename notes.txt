@@ -1,0 +1,17 @@
+Objects
+
+Deal 
+
+
+Trick 
+- leader
+- cards played in trick
+- winner
+- suit
+- trump 
+
+Player
+- game score
+- table position
+- current hand
+- tricks taken in Deal

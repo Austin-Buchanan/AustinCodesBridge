@@ -1,12 +1,9 @@
 class Player:
     gameScore = 0
+    tricksWon = 0
+    hand = []
 
-    def __init__(self, name, isCPU):
+    def __init__(self, name, isCPU, position):
         self.name = name
         self.isCPU = isCPU
-
-    def getGameScore(self):
-        return self.gameScore
-    
-    def updateGameScore(self, increment):
-        self.gameScore = self.gameScore + increment
+        self.position = position
