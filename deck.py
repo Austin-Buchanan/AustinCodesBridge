@@ -21,4 +21,5 @@ class Deck:
             index = random.choice(indexList)
             indexList.remove(index)
             newCardList.append(self.cardList[index])
+            self.cardList.remove(cardInstance)
         self.cardList = newCardList

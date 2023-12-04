@@ -3,10 +3,10 @@ from player import Player
 class Deal:
     tricksPlayed = 0
 
-    def __init__(self, playerList, dealDeck, firstLeader):
+    def __init__(self, playerList, dealDeck, firstLeaderName):
         self.playerList = playerList
         self.dealDeck = dealDeck
-        self.firstLeader = firstLeader
+        self.firstLeaderName = firstLeaderName
         self.dealToPlayers()
 
     def dealToPlayers(self):
