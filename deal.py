@@ -11,8 +11,9 @@ class Deal:
 
     def dealToPlayers(self):
         playerIndex = 0
-        for cardInstance in self.dealDeck:
-            cardInstance.owner = self.playerList[playerIndex]
+        for cardInstance in self.dealDeck.cardList:
+            cardInstance.ownerName = self.playerList[playerIndex].name
+            self.playerList[playerIndex].hand.cards.append(cardInstance)
             playerIndex += 1
             if playerIndex == 4:
                 playerIndex = 0

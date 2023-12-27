@@ -1,6 +1,7 @@
 from player import Player 
 from deck import Deck
 from deal import Deal
+from displayUtilities import displayHand
 import random
 
 # constants
@@ -45,8 +46,15 @@ def playDeal(players):
 
     # initialize deal
     deal = Deal(players, deck, firstLeaderName)
+    for player in players:
+        if not player.isCPU:
+            player.hand.organize(['C', 'D', 'H', 'S'])
+            displayHand(player.hand)
 
     # play tricks
+    while deal.tricksPlayed < 13:
+        deal.tricksPlayed += 1
+        pass
 
 
 def main():
