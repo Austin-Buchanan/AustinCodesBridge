@@ -23,3 +23,4 @@ class Deck:
             newCardList.append(self.cardList[index])
             self.cardList.remove(cardInstance)
         self.cardList = newCardList
+
