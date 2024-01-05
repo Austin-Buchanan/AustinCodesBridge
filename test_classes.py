@@ -1,6 +1,7 @@
 from card import Card
 from hand import Hand
 from deck import Deck
+from player import Player
 
 #Test Card class
 def test_card_init():
@@ -76,3 +77,7 @@ def test_deck_shuffle():
     testDeck.shuffle()
     secondShuffle = testDeck.cardList
     assert firstShuffle != secondShuffle
+
+#Test Player class
+    testPlayer = Player('Tester', True, 'south')
+    assert testPlayer.name == 'Tester' and testPlayer.isCPU and testPlayer.position == 'south' and testPlayer.gameScore == 0 and testPlayer.tricksWon == 0 and testPlayer.hand == []
