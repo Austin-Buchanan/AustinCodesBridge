@@ -1,15 +1,15 @@
 class Card:
-    valueHierarchy = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K']
+    valueHierarchy = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A']
 
-    def __init__(self, suit, value, owner):
+    def __init__(self, suit, value, ownerName):
         self.suit = suit
         self.value = value
-        self.owner = owner
+        self.ownerName  = ownerName
 
     def copyCard(self, otherCard):
         self.suit = otherCard.suit
         self.value = otherCard.value
-        self.owner = otherCard.owner
+        self.ownerName = otherCard.ownerName
 
     def compareCard(self, otherCard, suitToFollow, trump):
         if self.suit != trump and otherCard.suit == trump:
