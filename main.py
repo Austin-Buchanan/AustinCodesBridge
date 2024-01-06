@@ -34,7 +34,7 @@ def fillEmptySeats(tableIn, username):
         tableIn.addPlayer(newPlayer)
         print(f"{newPlayer.name} is playing {newPlayer.position}")        
 
-def playDeal(tableIn, positions):
+def playDeal(tableIn, positions, userPosition):
     # initialize and shuffle deck
     deck = Deck()
     deck.shuffle()
@@ -44,6 +44,7 @@ def playDeal(tableIn, positions):
 
     # initialize deal
     deal = Deal(tableIn, deck, firstLeadPos)
+    tableIn.positions[userPosition].playerHand.printHand()
 
     # play tricks
 
@@ -62,7 +63,7 @@ def main():
     playing = True
     while playing:
         print('\n Playing a new deal . . . ')
-        playDeal(mainTable, positions)
+        playDeal(mainTable, positions, userPosition)
         if input("Continue? Enter 'yes' or 'no': ") == 'no':
             playing = False
 

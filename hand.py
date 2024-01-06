@@ -29,4 +29,23 @@ class Hand:
                     points += 1
         return points
 
-    
+    def printHand(self):
+        spadeStr = 'S: '
+        heartStr = 'H: '
+        diamondStr = 'D: '
+        clubStr = 'C: '
+        for card in self.cards:
+            match card.suit:
+                case 'S':
+                    spadeStr += card.value + ' '
+                case 'H':
+                    heartStr += card.value + ' '
+                case 'D':
+                    diamondStr += card.value + ' '
+                case 'C':
+                    clubStr += card.value + ' '
+        print(spadeStr)
+        print(heartStr)
+        print(diamondStr)
+        print(clubStr)
+        print('\n')
