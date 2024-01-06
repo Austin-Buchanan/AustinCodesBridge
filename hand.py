@@ -1,3 +1,14 @@
+def organizeInSuit(cardList):
+    if len(cardList) == 1:
+        return cardList
+    for k in range(len(cardList) - 1):
+        for i in range(len(cardList)):
+            if i == len(cardList) - 1:
+                continue
+            elif cardList[i].compareCard(cardList[i + 1], cardList[i].suit, None) == cardList[i + 1]:
+                cardList[i], cardList[i + 1] = cardList[i + 1], cardList[i]
+    return cardList
+
 class Hand:
     cards = []
 
@@ -29,7 +40,29 @@ class Hand:
                     points += 1
         return points
 
+    def organizeHand(self):
+        spades = []
+        hearts = []
+        diamonds = []
+        clubs = []
+        for card in self.cards:
+            match card.suit:
+                case 'S':
+                    spades.append(card)
+                case 'H':
+                    hearts.append(card)
+                case 'D':
+                    diamonds.append(card)
+                case 'C':
+                    clubs.append(card)
+        spades = organizeInSuit(spades)
+        hearts = organizeInSuit(hearts)
+        diamonds = organizeInSuit(diamonds)
+        clubs = organizeInSuit(clubs)
+        self.cards = spades + hearts + diamonds + clubs
+
     def printHand(self):
+        self.organizeHand()
         spadeStr = 'S: '
         heartStr = 'H: '
         diamondStr = 'D: '
@@ -48,4 +81,5 @@ class Hand:
         print(heartStr)
         print(diamondStr)
         print(clubStr)
-        print('\n')
+        
+

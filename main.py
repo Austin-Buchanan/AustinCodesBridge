@@ -44,6 +44,7 @@ def playDeal(tableIn, positions, userPosition):
 
     # initialize deal
     deal = Deal(tableIn, deck, firstLeadPos)
+    print('Here is your hand.')
     tableIn.positions[userPosition].playerHand.printHand()
 
     # play tricks
