@@ -3,6 +3,7 @@ from deck import Deck
 from deal import Deal
 from table import Table
 from hand import Hand
+from trick import Trick
 import random
 
 def intro(positions):
@@ -40,15 +41,18 @@ def playDeal(tableIn, positions, userPosition):
     deck.shuffle()
 
     # randomly determine who leads first (eventually replace with bidding)
-    firstLeadPos = random.choice(positions)
+    nextLeadPos = random.choice(positions)
 
     # initialize deal
-    deal = Deal(tableIn, deck, firstLeadPos)
+    deal = Deal(tableIn, deck, nextLeadPos)
     print('Here is your hand.')
     tableIn.positions[userPosition].playerHand.printHand()
 
     # play tricks
 
+    while deal.tricksPlayed < 13:
+        nextTrick = Trick(nextLeadPos, 'NT')
+        
 
 def main():
     # play intro and initialize

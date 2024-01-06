@@ -62,14 +62,6 @@ def test_hand_countHCP():
         testHand.addCard(Card(cardString[0], cardString[1], 'Tester'))
     assert testHand.countHCP() == 22
 
-# def test_hand_organize_in_suit():
-#     lowSpade = Card('S', '2', 'Tester')
-#     mediumSpade = Card('S', '8', 'Tester')
-#     highSpade = Card('S', 'K', 'Tester')
-#     organizedList = Hand.organizeInSuit([lowSpade, mediumSpade, highSpade])
-#     print(organizedList[0].value + ' ' + organizedList[1].value + ' ' + organizedList[2].value)
-#     assert organizedList == [highSpade, mediumSpade, lowSpade]
-
 def test_hand_organize_all():
     testHand = Hand('Tester', [])
     cardStringList = [
@@ -82,6 +74,20 @@ def test_hand_organize_all():
         testHand.addCard(Card(cardString[0], cardString[1], 'Tester'))
     testHand.organizeHand()
     assert testHand.cards[0].value == 'A' and testHand.cards[7].suit == 'D' and testHand.cards[12].value == '5'
+
+def test_play_card_CPU():
+    testHand = Hand('Tester', [])
+    cardStringList = [
+        'S2', 'ST', 'S4', 'SA',
+        'H5', 'H2', 'HK', 
+        'DT', 'DJ', 'D8', 
+        'CA', 'C5', 'CK'
+    ]
+    for cardString in cardStringList:
+        testHand.addCard(Card(cardString[0], cardString[1], 'Tester'))
+    testHand.organizeHand()
+    testHand.playCardCPU()
+    assert len(testHand.cards) == 12    
 
 #Test Deck class
 def test_deck_init():

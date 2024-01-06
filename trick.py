@@ -5,9 +5,21 @@ class Trick:
     cardsPlayed = [] 
     suitToFollow = ""
 
-    def __init__(self, leader, trump):
-        self.leader = leader
+    def __init__(self, leadPos, trump):
+        self.leadPos = leadPos
+        self.whoseTurn = leadPos
         self.trump = trump
+
+    def nextTurn(self):
+        match self.whoseTurn:
+            case 'north':
+                self.whoseTurn = 'east'
+            case 'east':
+                self.whoseTurn = 'south'
+            case 'south':
+                self.whoseTurn = 'west'
+            case 'west':
+                self.whoseturn = 'north'
 
     def setSuit(self):
         if len(self.cardsPlayed) < 1:

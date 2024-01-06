@@ -1,3 +1,5 @@
+import random
+
 def organizeInSuit(cardList):
     if len(cardList) == 1:
         return cardList
@@ -82,4 +84,8 @@ class Hand:
         print(diamondStr)
         print(clubStr)
         
+    def playCardCPU(self):
+        playCard = random.choice(self.cards)
+        self.cards.remove(playCard)
+        return playCard
 
