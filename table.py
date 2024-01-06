@@ -23,3 +23,9 @@ class Table:
                 return self.positions['north']
             case 'west':
                 return self.positions['east']
+            
+    def promptToPlay(self, position):
+        if self.positions[position].isCPU:
+            self.positions[position].playCPUcard()
+        else
+            self.positions[position].playUserCard()

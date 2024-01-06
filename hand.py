@@ -84,7 +84,7 @@ class Hand:
         print(diamondStr)
         print(clubStr)
         
-    def playCardCPU(self):
+    def playRandomCard(self):
         playCard = random.choice(self.cards)
         self.cards.remove(playCard)
         return playCard

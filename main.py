@@ -51,8 +51,9 @@ def playDeal(tableIn, positions, userPosition):
     # play tricks
 
     while deal.tricksPlayed < 13:
-        nextTrick = Trick(nextLeadPos, 'NT')
-        
+        newTrick = Trick(nextLeadPos, 'NT')
+        while len(newTrick.cardsPlayed) < 4:
+            tableIn.promptToPlay(newTrick.whoseTurn)
 
 def main():
     # play intro and initialize

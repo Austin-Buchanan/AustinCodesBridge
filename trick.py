@@ -38,5 +38,4 @@ class Trick:
             elif winningCard.compareCard(self.cardsPlayed[i]) != winningCard:
                 winningCard.copyCard(self.cardsPlayed[i])
         return winningCard
-                
 
