@@ -5,6 +5,8 @@ class Hand:
         self.ownerName = ownerName
         if len(cards) > 1:
             self.cards = cards
+        else:
+            self.cards = []
 
     def removeCard(self, cardToRemove):
         if cardToRemove in self.cards:

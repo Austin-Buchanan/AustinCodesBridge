@@ -2,6 +2,8 @@ from card import Card
 from hand import Hand
 from deck import Deck
 from player import Player
+from table import Table
+from deal import Deal
 
 #Test Card class
 def test_card_init():
@@ -78,6 +80,53 @@ def test_deck_shuffle():
     secondShuffle = testDeck.cardList
     assert firstShuffle != secondShuffle
 
-#Test Player class
-    testPlayer = Player('Tester', True, 'south')
-    assert testPlayer.name == 'Tester' and testPlayer.isCPU and testPlayer.position == 'south' and testPlayer.gameScore == 0 and testPlayer.tricksWon == 0 and testPlayer.hand == []
+#Test Player
+def test_player_init_empty_hand():
+    testPlayer = Player('Tester', True, 'south', None)
+    assert testPlayer.name == 'Tester' and testPlayer.isCPU and testPlayer.position == 'south' and testPlayer.gameScore == 0 and testPlayer.tricksWon == 0 and testPlayer.playerHand == None
+
+def test_player_init_full_hand():
+    testHand = Hand('Austin', [])
+    cardStringList = [
+        'SA', 'SQ', 'SJ', 'S2', 'HA', 'HQ', 'DK', 'DQ', 'D3', 'D2', 'CA', 'C4', 'C3'
+    ]
+    for cardString in cardStringList:
+        testHand.addCard(Card(cardString[0], cardString[1], 'Austin'))
+    testPlayer = Player('Austin', False, 'north', testHand)
+    assert testPlayer.playerHand.countHCP() == 22
+
+#Test Table
+def test_table_init_empty():
+    testTable = Table([])
+    assert testTable.positions['north'] == None and testTable.positions['west'] == None
+
+def test_table_init_full():
+    testerNorth = Player('testerNorth', False, 'north', None)
+    testerEast = Player('testerEast', True, 'east', None)
+    testerSouth = Player('testerSouth', True, 'south', None)
+    testerWest = Player('testerWest', True, 'west', None)
+    testTable = Table([testerNorth, testerEast, testerSouth, testerWest])
+    assert testTable.positions['north'].isCPU == False and testTable.positions['west'].name == 'testerWest'
+
+def test_table_find_partner():
+    testerNorth = Player('testerNorth', False, 'north', None)
+    testerEast = Player('testerEast', True, 'east', None)
+    testerSouth = Player('testerSouth', True, 'south', None)
+    testerWest = Player('testerWest', True, 'west', None)
+    testTable = Table([testerNorth, testerEast, testerSouth, testerWest])
+    assert testTable.findPartner(testerEast) == testerWest
+
+# Test Deal
+def test_deal_init():
+    northHand = Hand('testerNorth', [])
+    testerNorth = Player('testerNorth', False, 'north', northHand)
+    eastHand = Hand('testerEast', [])
+    testerEast = Player('testerEast', True, 'east', eastHand)
+    southHand = Hand('testerSouth', [])
+    testerSouth = Player('testerSouth', True, 'south', southHand)
+    westHand = Hand('testerWest', [])
+    testerWest = Player('testerWest', True, 'west', westHand)
+    testTable = Table([testerNorth, testerEast, testerSouth, testerWest])
+    testDeck = Deck()
+    testDeal = Deal(testTable, testDeck, 'north')
+    assert testDeal.dealTable == testTable and testDeal.dealDeck == testDeck and testDeal.firstLeadPos == 'north' and len(testDeal.dealTable.positions['north'].playerHand.cards) == 13 and len(testDeal.dealTable.positions['west'].playerHand.cards) == 13
