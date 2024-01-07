@@ -33,7 +33,60 @@ def fillEmptySeats(tableIn, username):
         newPlayer = Player(otherPlayerNames[0], True, emptyPosStr, Hand(otherPlayerNames[0], []))
         otherPlayerNames.remove(newPlayer.name)
         tableIn.addPlayer(newPlayer)
-        print(f"{newPlayer.name} is playing {newPlayer.position}")        
+        print(f"{newPlayer.name} is playing {newPlayer.position}")
+
+def printHand(hand):
+    hand.organizeHand()
+    spadeStr = 'S: '
+    heartStr = 'H: '
+    diamondStr = 'D: '
+    clubStr = 'C: '
+    for card in hand.cards:
+        match card.suit:
+            case 'S':
+                spadeStr += card.value + ' '
+            case 'H':
+                heartStr += card.value + ' '
+            case 'D':
+                diamondStr += card.value + ' '
+            case 'C':
+                clubStr += card.value + ' '
+    print(spadeStr)
+    print(heartStr)
+    print(diamondStr)
+    print(clubStr)
+
+def inputCardParse(cardString):
+    suit = ''
+    value = ''
+    suit = cardString[0]
+    value = cardString[1]
+    return suit, value
+
+def playUserCard(userHand, currentTrick):
+    suitToFollow = ''
+    if len(currentTrick.cardsPlayed) > 0:
+        suitToFollow = currentTrick.cardsPlayed[0].suit
+    validChoice = False
+    inputSuit = ''
+    inputValue = ''
+    while not validChoice:
+        print('\nHere is your current hand.')
+        printHand(userHand)
+        userInput = input('Enter a card from your hand: ')
+        if len(userInput) > 2:
+            print('Please enter your input with the format suit + value, like S7 for seven of spades or DK for king of diamonds.')
+            continue
+        else:
+            inputSuit, inputValue = inputCardParse(userInput)
+        for card in userHand.cards:
+            if inputSuit == card.suit and inputValue == card.value:
+                validChoice = True
+                currentTrick.cardsPlayed.append(card)
+                userHand.removeCard(card)
+        if not validChoice:
+            print('Please enter a card that is from your hand.')
+                
 
 def playDeal(tableIn, positions, userPosition):
     # initialize and shuffle deck
@@ -45,15 +98,21 @@ def playDeal(tableIn, positions, userPosition):
 
     # initialize deal
     deal = Deal(tableIn, deck, nextLeadPos)
-    print('Here is your hand.')
-    tableIn.positions[userPosition].playerHand.printHand()
+    print('\nHere is your hand.')
+    printHand(tableIn.positions[userPosition].playerHand)
 
     # play tricks
-
     while deal.tricksPlayed < 13:
         newTrick = Trick(nextLeadPos, 'NT')
         while len(newTrick.cardsPlayed) < 4:
-            tableIn.promptToPlay(newTrick.whoseTurn)
+            if tableIn.positions[newTrick.whoseTurn].isCPU:
+                newTrick.cardsPlayed.append(tableIn.positions[newTrick.whoseTurn].playerHand.playRandomCard())
+                print(f"{tableIn.positions[newTrick.whoseTurn].name} plays {newTrick.cardsPlayed[-1].suit + newTrick.cardsPlayed[-1].value}.")
+            else:
+                playUserCard(tableIn.positions[newTrick.whoseTurn].playerHand, newTrick)
+            newTrick.nextTurn()
+        # To Do - determine trick winner
+        deal.tricksPlayed += 1
 
 def main():
     # play intro and initialize

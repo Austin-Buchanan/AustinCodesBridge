@@ -7,9 +7,3 @@ class Player:
         self.isCPU = isCPU
         self.position = position
         self.playerHand = playerHand
-
-    def playCPUcard(self):
-        pass
-
-    def playUserCard(self):
-        pass
