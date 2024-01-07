@@ -1,6 +1,6 @@
 class Player:
     gameScore = 0
-    tricksWon = 0
+    tricksWonInDeal = 0
 
     def __init__(self, name, isCPU, position, playerHand):
         self.name = name

@@ -3,10 +3,9 @@ from player import Player
 
 class Trick:
     cardsPlayed = [] 
-    suitToFollow = ""
+    suitToFollow = ''
 
     def __init__(self, leadPos, trump):
-        self.leadPos = leadPos
         self.whoseTurn = leadPos
         self.trump = trump
 

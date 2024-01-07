@@ -111,7 +111,10 @@ def playDeal(tableIn, positions, userPosition):
             else:
                 playUserCard(tableIn.positions[newTrick.whoseTurn].playerHand, newTrick)
             newTrick.nextTurn()
-        # To Do - determine trick winner
+        
+        # Determine trick winner
+            
+            
         deal.tricksPlayed += 1
 
 def main():

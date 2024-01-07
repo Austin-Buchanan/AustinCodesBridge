@@ -4,6 +4,7 @@ from deck import Deck
 from player import Player
 from table import Table
 from deal import Deal
+from trick import Trick
 
 #Test Card class
 def test_card_init():
@@ -96,7 +97,7 @@ def test_deck_shuffle():
 #Test Player
 def test_player_init_empty_hand():
     testPlayer = Player('Tester', True, 'south', None)
-    assert testPlayer.name == 'Tester' and testPlayer.isCPU and testPlayer.position == 'south' and testPlayer.gameScore == 0 and testPlayer.tricksWon == 0 and testPlayer.playerHand == None
+    assert testPlayer.name == 'Tester' and testPlayer.isCPU and testPlayer.position == 'south' and testPlayer.gameScore == 0 and testPlayer.tricksWonInDeal == 0 and testPlayer.playerHand == None
 
 def test_player_init_full_hand():
     testHand = Hand('Tester', [])
@@ -143,3 +144,20 @@ def test_deal_init():
     testDeck = Deck()
     testDeal = Deal(testTable, testDeck, 'north')
     assert testDeal.dealTable == testTable and testDeal.dealDeck == testDeck and testDeal.firstLeadPos == 'north' and len(testDeal.dealTable.positions['north'].playerHand.cards) == 13 and len(testDeal.dealTable.positions['west'].playerHand.cards) == 13
+
+# Test Trick
+def test_trick_init():
+    testTrick = Trick('north', 'S')
+    assert testTrick.whoseTurn == 'north' and testTrick.trump == 'S' and len(testTrick.cardsPlayed) == 0 and testTrick.suitToFollow == ''
+
+def test_trick_next_turn():
+    testTrick = Trick('north', 'S')
+    testTrick.nextTurn()
+    assert testTrick.whoseTurn == 'east'
+
+def test_trick_find_winner_same_suit():
+    testTrick = Trick('north', 'S')
+    northCard = Card('S', '7', 'northTester')
+    eastCard = Card('S', '2', 'eastTester')
+    southCard = Card('S', 'K', 'southTester')
+    westCard = Card('S', 'A', 'westTester')
