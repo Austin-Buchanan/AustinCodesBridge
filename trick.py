@@ -19,7 +19,7 @@ class Trick:
             case 'south':
                 self.whoseTurn = 'west'
             case 'west':
-                self.whoseturn = 'north'
+                self.whoseTurn = 'north'
 
     def setSuit(self):
         if len(self.cardsPlayed) < 1:

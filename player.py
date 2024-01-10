@@ -9,3 +9,6 @@ class Player:
         self.isCPU = isCPU
         self.position = position
         self.playerHand = playerHand
+
+    def winTrick(self):
+        self.tricksWon += 1

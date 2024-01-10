@@ -24,3 +24,8 @@ class Table:
             case 'west':
                 return self.positions['east']
             
+    def findPlayerPos(self, playerName):
+        for position, playerInstance in self.positions.items():
+            if playerInstance.name == playerName:
+                return position
+            
