@@ -1,5 +1,4 @@
 from card import Card
-from player import Player
 import random
 
 class Deck:
@@ -8,23 +7,17 @@ class Deck:
     cardList = []
 
     def __init__(self):
-        noPlayer = Player("", False, "none")
         for suitType in self.suits:
             for cardValue in self.cardValues:
-                self.cardList.append(Card(suitType, cardValue, noPlayer.name))
+                self.cardList.append(Card(suitType, cardValue, ''))
         self.shuffle()
 
     def shuffle(self):
         indexList = list(range(0, 52))
         newCardList = []
-        for i in range(52):
+        while len(indexList) > 0:
             index = random.choice(indexList)
-            indexList.pop()
-            try:
-                newCardList.append(self.cardList[index])
-                self.cardList.remove(self.cardList[index])
-            except:
-                print("Error at index " + str(index))
-                print("cardList length: " + str(len(self.cardList)))
-                raise
+            indexList.remove(index)
+            newCardList.append(self.cardList[index])
         self.cardList = newCardList
+

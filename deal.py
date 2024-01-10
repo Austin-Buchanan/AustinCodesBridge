@@ -3,20 +3,32 @@ from player import Player
 class Deal:
     tricksPlayed = 0
 
-    def __init__(self, playerList, dealDeck, firstLeaderName):
-        self.playerList = playerList
+    def __init__(self, dealTable, dealDeck, firstLeadPos):
+        self.dealTable = dealTable
         self.dealDeck = dealDeck
-        self.firstLeaderName = firstLeaderName
+        self.firstLeadPos = firstLeadPos
         self.dealToPlayers()
 
     def dealToPlayers(self):
         playerIndex = 0
+        positionString = ''
         for cardInstance in self.dealDeck.cardList:
-            cardInstance.ownerName = self.playerList[playerIndex].name
-            self.playerList[playerIndex].hand.cards.append(cardInstance)
-            playerIndex += 1
-            if playerIndex == 4:
-                playerIndex = 0
+            positionString = ''
+            match playerIndex:
+                case 0:
+                    positionString = 'north'
+                    playerIndex += 1
+                case 1:
+                    positionString = 'east'
+                    playerIndex += 1
+                case 2:
+                    positionString = 'south'
+                    playerIndex += 1
+                case 3:
+                    positionString = 'west'
+                    playerIndex = 0
+            cardInstance.ownerName = self.dealTable.positions[positionString].name
+            self.dealTable.positions[positionString].playerHand.addCard(cardInstance)
 
     def findDealWinner(self):
         winner = Player("", False, "none")

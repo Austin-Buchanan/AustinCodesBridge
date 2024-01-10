@@ -4,23 +4,12 @@ class Card:
     def __init__(self, suit, value, ownerName):
         self.suit = suit
         self.value = value
-        self.ownerName = ownerName
-        match value:
-            case 'A':
-                self.HCPvalue = 4
-            case 'K':
-                self.HCPvalue = 3
-            case 'Q':
-                self.HCPvalue = 2
-            case 'J':
-                self.HCPvalue = 1
-            case _:
-                self.HCPvalue = 0
+        self.ownerName  = ownerName
 
     def copyCard(self, otherCard):
         self.suit = otherCard.suit
         self.value = otherCard.value
-        self.owner = otherCard.owner
+        self.ownerName = otherCard.ownerName
 
     def compareCard(self, otherCard, suitToFollow, trump):
         if self.suit != trump and otherCard.suit == trump:
