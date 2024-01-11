@@ -76,6 +76,39 @@ def test_hand_organize_all():
     testHand.organizeHand()
     assert testHand.cards[0].value == 'A' and testHand.cards[7].suit == 'D' and testHand.cards[12].value == '5'
 
+def test_hand_play_random():
+    testHand = Hand('Tester', [])
+    cardStringList = [
+        'S2', 'ST', 'S4', 'SA',
+        'H5', 'H2', 'HK', 
+        'DT', 'DJ', 'D8', 
+        'CA', 'C5', 'CK'
+    ]
+    for cardString in cardStringList:
+        testHand.addCard(Card(cardString[0], cardString[1], 'Tester'))
+    assert len(testHand.cards) == 13
+    testCard = testHand.playRandomCard('D')
+    assert len(testHand.cards) == 12 and testCard.suit == 'D'
+    leadCard = testHand.playRandomCard('')
+    assert leadCard not in testHand.cards   
+
+def test_validate_card_choice():
+    testHand = Hand('Tester', [])
+    cardStringList = [
+        'S2', 'ST', 'S4', 'SA',
+        'H5', 'H2', 'HK', 
+        'DT', 'DJ', 'D8', 
+        'CA', 'C5', 'CK'
+    ]
+    for cardString in cardStringList:
+        testHand.addCard(Card(cardString[0], cardString[1], 'Tester'))
+    assert testHand.validateCardChoice('H', 'H', 'K').value == 'K'
+    assert testHand.validateCardChoice('H', 'D', 'T') is None
+    assert testHand.validateCardChoice('', 'S', 'A').value == 'A'
+    assert testHand.validateCardChoice('H', 'H', 'A') is None
+    assert testHand.validateCardChoice('H', 'D', 'A') is None
+    assert testHand.validateCardChoice('', 'D', '2') is None    
+
 #Test Deck class
 def test_deck_init():
     testCard = Card('H', 'A', '')
@@ -97,7 +130,7 @@ def test_deck_shuffle():
 #Test Player
 def test_player_init_empty_hand():
     testPlayer = Player('Tester', True, 'south', None)
-    assert testPlayer.name == 'Tester' and testPlayer.isCPU and testPlayer.position == 'south' and testPlayer.gameScore == 0 and testPlayer.tricksWonInDeal == 0 and testPlayer.playerHand == None
+    assert testPlayer.name == 'Tester' and testPlayer.isCPU and testPlayer.position == 'south' and testPlayer.gameScore == 0 and testPlayer.tricksWon == 0 and testPlayer.playerHand == None
 
 def test_player_init_full_hand():
     testHand = Hand('Tester', [])
@@ -163,7 +196,7 @@ def test_deal_init():
 # Test Trick
 def test_trick_init():
     testTrick = Trick('west', 'NT')
-    assert testTrick.leadPos == 'west' and testTrick.whoseTurn == 'west' and testTrick.trump == 'NT'
+    assert testTrick.whoseTurn == 'west' and testTrick.trump == 'NT'
 
 def test_trick_next_turn():
     testTrick = Trick('north', 'NT')

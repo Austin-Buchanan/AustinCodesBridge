@@ -29,12 +29,11 @@ class Trick:
     def findTrickWinner(self):
         if len(self.cardsPlayed) < 4:
             return "Error - less than 4 cards played in trick"
-        noPlayer = Player("", False, "none")
-        winningCard = Card("", "", noPlayer)
+        winningCard = Card('', '', '')
         for i in range(4):
             if i == 0:
                 winningCard.copyCard(self.cardsPlayed[0])
-            elif winningCard.compareCard(self.cardsPlayed[i]) != winningCard:
+            elif winningCard.compareCard(self.cardsPlayed[i], self.suitToFollow, self.trump) != winningCard:
                 winningCard.copyCard(self.cardsPlayed[i])
         return winningCard
 

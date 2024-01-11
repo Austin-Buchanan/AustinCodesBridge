@@ -4,7 +4,14 @@ from deal import Deal
 from table import Table
 from hand import Hand
 from trick import Trick
+from displayUtilities import printDeck, printHand
 import random
+import sys
+
+def checkAdminMode():
+    if len(sys.argv) > 1 and sys.argv[1] == 'admin':
+        return True
+    return False
 
 def intro(positions):
     print("Let's play bridge!")
@@ -35,27 +42,6 @@ def fillEmptySeats(tableIn, username):
         tableIn.addPlayer(newPlayer)
         print(f"{newPlayer.name} is playing {newPlayer.position}")
 
-def printHand(hand):
-    hand.organizeHand()
-    spadeStr = 'S: '
-    heartStr = 'H: '
-    diamondStr = 'D: '
-    clubStr = 'C: '
-    for card in hand.cards:
-        match card.suit:
-            case 'S':
-                spadeStr += card.value + ' '
-            case 'H':
-                heartStr += card.value + ' '
-            case 'D':
-                diamondStr += card.value + ' '
-            case 'C':
-                clubStr += card.value + ' '
-    print(spadeStr)
-    print(heartStr)
-    print(diamondStr)
-    print(clubStr)
-
 def inputCardParse(cardString):
     suit = ''
     value = ''
@@ -71,7 +57,6 @@ def playUserCard(userHand, currentTrick):
     inputSuit = ''
     inputValue = ''
     while not validChoice:
-        print('\nHere is your current hand.')
         printHand(userHand)
         userInput = input('Enter a card from your hand: ')
         if len(userInput) > 2:
@@ -79,19 +64,47 @@ def playUserCard(userHand, currentTrick):
             continue
         else:
             inputSuit, inputValue = inputCardParse(userInput)
-        for card in userHand.cards:
-            if inputSuit == card.suit and inputValue == card.value:
-                validChoice = True
-                currentTrick.cardsPlayed.append(card)
-                userHand.removeCard(card)
+        cardChosen = userHand.validateCardChoice(suitToFollow, inputSuit, inputValue)
+        if cardChosen is not None:
+            validChoice = True
+            currentTrick.cardsPlayed.append(cardChosen)
+            userHand.removeCard(cardChosen)
         if not validChoice:
-            print('Please enter a card that is from your hand.')
-                
+            print('Please enter a valid card from your hand.')    
 
-def playDeal(tableIn, positions, userPosition):
+def playTrick(tableIn, nextLeadPos, adminMode):
+    trick = Trick(nextLeadPos, 'NT')
+    suitToFollow = ''
+    while len(trick.cardsPlayed) < 4:
+        if adminMode:
+            print('\nCards played in trick:')
+            outString = ''
+            for card in trick.cardsPlayed:
+                outString += f"{card.suit + card.value} "
+            print(outString)
+
+        if len(trick.cardsPlayed) == 1:
+            suitToFollow = trick.cardsPlayed[0].suit
+
+        if tableIn.positions[trick.whoseTurn].isCPU:
+            if adminMode:
+                printHand(tableIn.positions[trick.whoseTurn].playerHand)
+            trick.cardsPlayed.append(tableIn.positions[trick.whoseTurn].playerHand.playRandomCard(suitToFollow))
+            print(f"{tableIn.positions[trick.whoseTurn].name} plays {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}.")
+        else:
+            print('\nIt\'s your turn to play.')
+            playUserCard(tableIn.positions[trick.whoseTurn].playerHand, trick)
+        trick.nextTurn()
+    return trick.findTrickWinner()
+
+def playDeal(tableIn, positions, userPosition, adminMode):
     # initialize and shuffle deck
     deck = Deck()
+    if adminMode:
+        printDeck(deck)
     deck.shuffle()
+    if adminMode:
+        printDeck(deck)
 
     # randomly determine who leads first (eventually replace with bidding)
     nextLeadPos = random.choice(positions)
@@ -104,21 +117,17 @@ def playDeal(tableIn, positions, userPosition):
     # play tricks
     while deal.tricksPlayed < 13:
         print(f"\nPlaying a new trick. {tableIn.positions[nextLeadPos].name} ({nextLeadPos}) will lead.")
-        newTrick = Trick(nextLeadPos, 'NT')
-        while len(newTrick.cardsPlayed) < 4:
-            if tableIn.positions[newTrick.whoseTurn].isCPU:
-                newTrick.cardsPlayed.append(tableIn.positions[newTrick.whoseTurn].playerHand.playRandomCard())
-                print(f"{tableIn.positions[newTrick.whoseTurn].name} plays {newTrick.cardsPlayed[-1].suit + newTrick.cardsPlayed[-1].value}.")
-            else:
-                print('\nIt\'s your turn to play.')
-                playUserCard(tableIn.positions[newTrick.whoseTurn].playerHand, newTrick)
-            newTrick.nextTurn()
-        winningCard = newTrick.findTrickWinner()
+        winningCard = playTrick(tableIn, nextLeadPos, adminMode)
         print(f"{winningCard.ownerName} wins!")
         tableIn.positions[tableIn.findPlayerPos(winningCard.ownerName)].winTrick()
         deal.tricksPlayed += 1
 
 def main():
+    # check for admin mode, which logs all hands and info to console
+    adminMode = checkAdminMode()
+    if adminMode:
+        print('Starting program in admin mode.')
+
     # play intro and initialize
     mainTable = Table([])
     positions = list(mainTable.positions.keys())
@@ -132,7 +141,7 @@ def main():
     playing = True
     while playing:
         print('\n Playing a new deal . . . ')
-        playDeal(mainTable, positions, userPosition)
+        playDeal(mainTable, positions, userPosition, adminMode)
         if input("Continue? Enter 'yes' or 'no': ") == 'no':
             playing = False
 

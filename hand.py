@@ -1,3 +1,4 @@
+from card import Card
 import random
 
 def organizeInSuit(cardList):
@@ -10,6 +11,14 @@ def organizeInSuit(cardList):
             elif cardList[i].compareCard(cardList[i + 1], cardList[i].suit, None) == cardList[i + 1]:
                 cardList[i], cardList[i + 1] = cardList[i + 1], cardList[i]
     return cardList
+
+def buildSubList(cardList, suitToFollow):
+    subList = []
+    if suitToFollow != '':
+        for card in cardList:
+            if card.suit == suitToFollow:
+                subList.append(card)
+    return subList    
 
 class Hand:
     cards = []
@@ -63,8 +72,27 @@ class Hand:
         clubs = organizeInSuit(clubs)
         self.cards = spades + hearts + diamonds + clubs
         
-    def playRandomCard(self):
-        playCard = random.choice(self.cards)
+    def playRandomCard(self, suitToFollow):
+        subList = []
+        subList = buildSubList(self.cards, suitToFollow)
+        playCard = Card('', '', '')
+        if len(subList) > 0:
+            playCard = random.choice(subList)
+        else:
+            playCard = random.choice(self.cards)
         self.cards.remove(playCard)
         return playCard
+
+    def validateCardChoice(self, suitToFollow, inputSuit, inputValue):
+        subList = []
+        subList = buildSubList(self.cards, suitToFollow)
+        if len(subList) > 0:
+            for card in subList:
+                if card.suit == inputSuit and card.value == inputValue:
+                    return card
+            return None
+        for card in self.cards:
+            if card.suit == inputSuit and card.value == inputValue:
+                return card
+        return None
 
