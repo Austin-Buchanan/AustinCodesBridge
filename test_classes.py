@@ -109,6 +109,13 @@ def test_player_init_full_hand():
     testPlayer = Player('Tester', False, 'north', testHand)
     assert testPlayer.playerHand.countHCP() == 22
 
+def test_player_win_trick():
+    testPlayer = Player('Tester', True, 'south', None)
+    testPlayer.winTrick()
+    assert testPlayer.tricksWon == 1
+    testPlayer.winTrick()
+    assert testPlayer.tricksWon == 2
+
 #Test Table
 def test_table_init_empty():
     testTable = Table([])
@@ -130,6 +137,14 @@ def test_table_find_partner():
     testTable = Table([testerNorth, testerEast, testerSouth, testerWest])
     assert testTable.findPartner(testerEast) == testerWest
 
+def test_table_find_player_pos():
+    testerNorth = Player('testerNorth', False, 'north', None)
+    testerEast = Player('testerEast', True, 'east', None)
+    testerSouth = Player('testerSouth', True, 'south', None)
+    testerWest = Player('testerWest', True, 'west', None)
+    testTable = Table([testerNorth, testerEast, testerSouth, testerWest])
+    assert testTable.findPlayerPos('testerSouth') == 'south'    
+
 # Test Deal
 def test_deal_init():
     northHand = Hand('testerNorth', [])
@@ -143,21 +158,18 @@ def test_deal_init():
     testTable = Table([testerNorth, testerEast, testerSouth, testerWest])
     testDeck = Deck()
     testDeal = Deal(testTable, testDeck, 'north')
-    assert testDeal.dealTable == testTable and testDeal.dealDeck == testDeck and testDeal.firstLeadPos == 'north' and len(testDeal.dealTable.positions['north'].playerHand.cards) == 13 and len(testDeal.dealTable.positions['west'].playerHand.cards) == 13
+    assert testDeal.dealTable == testTable and testDeal.dealDeck == testDeck and testDeal.leader == 'north' and len(testDeal.dealTable.positions['north'].playerHand.cards) == 13 and len(testDeal.dealTable.positions['west'].playerHand.cards) == 13
 
 # Test Trick
 def test_trick_init():
-    testTrick = Trick('north', 'S')
-    assert testTrick.whoseTurn == 'north' and testTrick.trump == 'S' and len(testTrick.cardsPlayed) == 0 and testTrick.suitToFollow == ''
+    testTrick = Trick('west', 'NT')
+    assert testTrick.leadPos == 'west' and testTrick.whoseTurn == 'west' and testTrick.trump == 'NT'
 
 def test_trick_next_turn():
-    testTrick = Trick('north', 'S')
+    testTrick = Trick('north', 'NT')
     testTrick.nextTurn()
     assert testTrick.whoseTurn == 'east'
-
-def test_trick_find_winner_same_suit():
-    testTrick = Trick('north', 'S')
-    northCard = Card('S', '7', 'northTester')
-    eastCard = Card('S', '2', 'eastTester')
-    southCard = Card('S', 'K', 'southTester')
-    westCard = Card('S', 'A', 'westTester')
+    testTrick.nextTurn()
+    assert testTrick.whoseTurn == 'south'
+    testTrick.nextTurn()
+    assert testTrick.whoseTurn == 'west'

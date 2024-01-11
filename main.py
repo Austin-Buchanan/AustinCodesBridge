@@ -103,18 +103,19 @@ def playDeal(tableIn, positions, userPosition):
 
     # play tricks
     while deal.tricksPlayed < 13:
+        print(f"\nPlaying a new trick. {tableIn.positions[nextLeadPos].name} ({nextLeadPos}) will lead.")
         newTrick = Trick(nextLeadPos, 'NT')
         while len(newTrick.cardsPlayed) < 4:
             if tableIn.positions[newTrick.whoseTurn].isCPU:
                 newTrick.cardsPlayed.append(tableIn.positions[newTrick.whoseTurn].playerHand.playRandomCard())
                 print(f"{tableIn.positions[newTrick.whoseTurn].name} plays {newTrick.cardsPlayed[-1].suit + newTrick.cardsPlayed[-1].value}.")
             else:
+                print('\nIt\'s your turn to play.')
                 playUserCard(tableIn.positions[newTrick.whoseTurn].playerHand, newTrick)
             newTrick.nextTurn()
-        
-        # Determine trick winner
-            
-            
+        winningCard = newTrick.findTrickWinner()
+        print(f"{winningCard.ownerName} wins!")
+        tableIn.positions[tableIn.findPlayerPos(winningCard.ownerName)].winTrick()
         deal.tricksPlayed += 1
 
 def main():

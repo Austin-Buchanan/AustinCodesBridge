@@ -1,3 +1,5 @@
+from hand import Hand
+
 class Player:
     gameScore = 0
     tricksWonInDeal = 0
@@ -7,3 +9,6 @@ class Player:
         self.isCPU = isCPU
         self.position = position
         self.playerHand = playerHand
+
+    def winTrick(self):
+        self.tricksWon += 1

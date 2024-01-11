@@ -6,7 +6,7 @@ class Deal:
     def __init__(self, dealTable, dealDeck, firstLeadPos):
         self.dealTable = dealTable
         self.dealDeck = dealDeck
-        self.firstLeadPos = firstLeadPos
+        self.leader = firstLeadPos
         self.dealToPlayers()
 
     def dealToPlayers(self):
@@ -36,3 +36,5 @@ class Deal:
             if playerInstance.tricksWon > winner.tricksWon:
                 winner = playerInstance
         return winner
+    
+#    def setNewLeader(self, leadPos)
