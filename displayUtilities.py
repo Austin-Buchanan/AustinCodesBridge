@@ -27,3 +27,8 @@ def printHand(hand):
     print(heartStr)
     print(diamondStr)
     print(clubStr)
+
+def printTrickScore(tableIn):
+    print('Here are the number of tricks won in the current deal.')
+    for player in tableIn.positions.values():
+        print(f"{player.name} ({player.position}) - {player.tricksWon}")

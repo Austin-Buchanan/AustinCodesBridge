@@ -4,7 +4,7 @@ from deal import Deal
 from table import Table
 from hand import Hand
 from trick import Trick
-from displayUtilities import printDeck, printHand
+from displayUtilities import printDeck, printHand, printTrickScore
 import random
 import sys
 
@@ -120,7 +120,10 @@ def playDeal(tableIn, positions, userPosition, adminMode):
         winningCard = playTrick(tableIn, nextLeadPos, adminMode)
         print(f"{winningCard.ownerName} wins!")
         tableIn.positions[tableIn.findPlayerPos(winningCard.ownerName)].winTrick()
+        tableIn.findPartner(tableIn.positions[tableIn.findPlayerPos(winningCard.ownerName)]).winTrick()
         deal.tricksPlayed += 1
+        nextLeadPos = tableIn.findPlayerPos(winningCard.ownerName)
+        printTrickScore(tableIn)
 
 def main():
     # check for admin mode, which logs all hands and info to console

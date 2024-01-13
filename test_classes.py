@@ -197,6 +197,7 @@ def test_deal_init():
 def test_trick_init():
     testTrick = Trick('west', 'NT')
     assert testTrick.whoseTurn == 'west' and testTrick.trump == 'NT'
+    assert len(testTrick.cardsPlayed) == 0
 
 def test_trick_next_turn():
     testTrick = Trick('north', 'NT')
@@ -206,3 +207,12 @@ def test_trick_next_turn():
     assert testTrick.whoseTurn == 'south'
     testTrick.nextTurn()
     assert testTrick.whoseTurn == 'west'
+
+def test_trick_find_winner():
+    testTrick = Trick('north', 'NT')
+    testTrick.cardsPlayed.append(Card('S', '8', 'Austin'))
+    testTrick.cardsPlayed.append(Card('C', '7', 'Allison'))
+    testTrick.cardsPlayed.append(Card('H', 'K', 'Blake'))
+    testTrick.cardsPlayed.append(Card('H', '8', 'Catherine'))
+    assert testTrick.findTrickWinner().suit == testTrick.cardsPlayed[0].suit
+    assert testTrick.findTrickWinner().value == testTrick.cardsPlayed[0].value

@@ -2,12 +2,12 @@ from card import Card
 from player import Player
 
 class Trick:
-    cardsPlayed = [] 
     suitToFollow = ''
 
     def __init__(self, leadPos, trump):
         self.whoseTurn = leadPos
         self.trump = trump
+        self.cardsPlayed = []
 
     def nextTurn(self):
         match self.whoseTurn:
@@ -33,6 +33,7 @@ class Trick:
         for i in range(4):
             if i == 0:
                 winningCard.copyCard(self.cardsPlayed[0])
+                self.suitToFollow = self.cardsPlayed[0].suit
             elif winningCard.compareCard(self.cardsPlayed[i], self.suitToFollow, self.trump) != winningCard:
                 winningCard.copyCard(self.cardsPlayed[i])
         return winningCard
