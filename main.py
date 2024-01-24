@@ -7,31 +7,80 @@ from trick import Trick
 import random, sys
 import PySimpleGUI as sg 
 
+def fillTable(table, username, userPosition):
+    user = Player(username, False, userPosition, Hand(username, []))
+    table.addPlayer(user)
+    otherPlayerNames = ['Allison', 'Blake', 'Catherine', 'Dylan']
+    if username in otherPlayerNames:
+        otherPlayerNames.remove(username)
+    for i in range(3):
+        emptyPosStr = ''
+        if table.positions['north'] is None:
+            emptyPosStr = 'north'
+        elif table.positions['east'] is None:
+            emptyPosStr = 'east'
+        elif table.positions['south'] is None:
+            emptyPosStr = 'south'
+        elif table.positions['west'] is None:
+            emptyPosStr = 'west'
+        newPlayer = Player(otherPlayerNames[0], True, emptyPosStr, Hand(otherPlayerNames[0], []))
+        otherPlayerNames.remove(newPlayer.name)
+        table.addPlayer(newPlayer)    
+
+def positionsToText(table):
+    infoText = ''
+    positions = list(table.positions.keys())
+    for position in positions:
+        infoText += f"{table.positions[position].name} is playing {position}.\n"
+    return infoText
+
+def displayCards(table, userPosition, window):
+    pass
+
+def playDeal(table, userPosition, window):
+    deck = Deck()
+    deck.shuffle()
+
+    positions = list(table.positions.keys())
+    nextLeadPos = random.choice(positions)
+
+    deal = Deal(table, deck, nextLeadPos)
+    displayCards(table, userPosition, window)
+
 def main():
     mainTable = Table([])
     positions = list(mainTable.positions.keys())
 
     sg.theme('BluePurple')
-    layout_intro = [[sg.Text("Let's play bridge!\nEnter your name: "), sg.Text(key='-INTRO-')],
+    layout_intro = [[sg.Text("Let's play bridge!\nEnter your name: ", key='-INTRO-')],
               [sg.Input(key='-NAME-')],
-              [sg.Text('Where would you like to sit?'), sg.Text(key='-QPOSITION-')],
+              [sg.Text('Where would you like to sit?', key='-QPOSITION-')],
               [sg.Combo(positions, key='-POSITION-')],
               [sg.Button('Start')],
-              [sg.Text(''), sg.Text( key='-ERRORTEXT-')]]
+              [sg.Text('', key='-ERRORTEXT-')]]
+    layout_deal = [[sg.Output(size=(40, 5))],
+                   [sg.Text('Top Player', key='-TOPPLAYER-')],
+                   [sg.Text('Left Player', key='-LEFTPLAYER-'), sg.Text('Right Player', key='-RIGHTPLAYER-', justification='r')],
+                   [sg.Text('User', key='-USERPLAYER-')]]
     
-    layout = [[sg.Column(layout_intro, key='-COLINTRO-')],
-               [sg.Button('Exit')]]
+    layout = [[sg.Column(layout_intro, key='-COLINTRO-'), sg.Column(layout_deal, visible=False, key='-COLDEAL-')],
+              [sg.Button('Exit')]]
     
     window = sg.Window('Austin Codes Bridge', layout)
 
     while True: 
         event, values = window.read()
-        print(event, values)
+#        print(event, values)
         if event == sg.WIN_CLOSED or event == 'Exit':
             break
         if event == 'Start':
             if values['-NAME-'] != '' and values['-POSITION-'] in positions:
+                fillTable(mainTable, values['-NAME-'], values['-POSITION-'])
+                print(positionsToText(mainTable) + f"Your partner will be {mainTable.findPartner(mainTable.positions[values['-POSITION-']]).name}.")
                 window['-COLINTRO-'].update(visible=False)
+                window['-COLDEAL-'].update(visible=True)
+                print('Playing a new deal...')
+                playDeal(mainTable, values['-POSITION-'], window)
             else:
                 window['-ERRORTEXT-'].update('Please enter your name and select a position from the dropdown before clicking Start.')
 
