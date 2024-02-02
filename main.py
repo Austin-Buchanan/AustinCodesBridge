@@ -34,8 +34,57 @@ def positionsToText(table):
         infoText += f"{table.positions[position].name} is playing {position}.\n"
     return infoText
 
+def cardsToStr(cards):
+    spadeStr = 'S: '
+    heartStr = 'H: '
+    diamondStr = 'D: '
+    clubStr = 'C: '
+    for card in cards:
+        match card.suit:
+            case 'S':
+                spadeStr += card.value + ' '
+            case 'H':
+                heartStr += card.value + ' '
+            case 'D':
+                diamondStr += card.value + ' '
+            case 'C':
+                clubStr += card.value + ' '
+    return '\n' + spadeStr + '\n' + heartStr + '\n' + diamondStr + '\n' + clubStr     
+
+def tablePosToScreen(userPos, inPos):
+    match userPos:
+        case 'north':
+            if inPos == 'east':
+                return 'left'
+            return 'right'
+        case 'east':
+            if inPos == 'south':
+                return 'left'
+            return 'right'
+        case 'south':
+            if inPos == 'west':
+                return 'left'
+            return 'right'
+        case 'west':
+            if inPos == 'north':
+                return 'left'
+            return 'right'
+    return ''
+
 def displayCards(table, userPosition, window):
-    pass
+    positions = list(table.positions.keys())
+    for position in positions:
+        table.positions[position].playerHand.organizeHand()
+        if table.findPartner(table.positions[userPosition]).position == position:
+            window['-TOPPLAYER-'].update(f"{table.positions[position].name} ({position}){cardsToStr(table.positions[position].playerHand.cards)}")
+        elif position == userPosition:
+            window['-USERPLAYER-'].update(f"{table.positions[position].name} ({position}){cardsToStr(table.positions[position].playerHand.cards)}")
+        else:
+            screenPos = tablePosToScreen(userPosition, position)
+            if screenPos == 'left':
+                window['-LEFTPLAYER-'].update(f"{table.positions[position].name} ({position}){cardsToStr(table.positions[position].playerHand.cards)}")
+            else:
+                window['-RIGHTPLAYER-'].update(f"{table.positions[position].name} ({position}){cardsToStr(table.positions[position].playerHand.cards)}")
 
 def playDeal(table, userPosition, window):
     deck = Deck()
