@@ -86,6 +86,19 @@ def displayCards(table, userPosition, window):
             else:
                 window['-RIGHTPLAYER-'].update(f"{table.positions[position].name} ({position}){cardsToStr(table.positions[position].playerHand.cards)}")
 
+def playTrick(table, nextLeadPos, window, userPosition):
+    trick = Trick(nextLeadPos, 'NT')
+    suitToFollow = ''
+    print(f"\nPlaying a new trick. {table.positions[nextLeadPos].name} ({nextLeadPos}) will lead.")
+
+    if table.positions[trick.whoseTurn].isCPU:
+        trick.cardsPlayed.append(table.positions[trick.whoseTurn].playerHand.playRandomCard(suitToFollow))
+        print(f"{table.positions[trick.whoseTurn].name} plays {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}.")
+
+        #layoutLocation = tablePosToScreen(userPosition, table.positions[trick.whoseTurn].position)
+        
+
+
 def playDeal(table, userPosition, window):
     deck = Deck()
     deck.shuffle()
@@ -95,6 +108,8 @@ def playDeal(table, userPosition, window):
 
     deal = Deal(table, deck, nextLeadPos)
     displayCards(table, userPosition, window)
+
+    playTrick(table, nextLeadPos, window, userPosition)
 
 def main():
     mainTable = Table([])
