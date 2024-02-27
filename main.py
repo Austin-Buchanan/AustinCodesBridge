@@ -86,39 +86,44 @@ def displayCards(table, userPosition, window):
             else:
                 window['-RIGHTPLAYER-'].update(f"{table.positions[position].name} ({position}){cardsToStr(table.positions[position].playerHand.cards)}")
 
-def addCPUcard(window, key, table, trick):
+def addCardText(window, key, table, trick):
     # determine card played
     trick.cardsPlayed.append(table.positions[trick.whoseTurn].playerHand.playRandomCard(trick.suitToFollow))
     print(f"{table.positions[trick.whoseTurn].name} plays {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}.")
     previousText = window[key].get()
     window[key].update(previousText + f"\nCard Played - {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}")
 
-def playTrick(table, nextLeadPos, window, userPosition):
+def playTrick(table, nextLeadPos, window, userPosition, isUserTurn):
     trick = Trick(nextLeadPos, 'NT')
-    print(f"\nPlaying a new trick. {table.positions[nextLeadPos].name} ({nextLeadPos}) will lead.")
+    print(f"Playing a new trick. {table.positions[nextLeadPos].name} ({nextLeadPos}) will lead.")
 
     if table.findPartner(table.positions[userPosition]).position == nextLeadPos:
-        addCPUcard(window, '-TOPPLAYER-', table, trick)
+        addCardText(window, '-TOPPLAYER-', table, trick)
     elif table.positions[trick.whoseTurn].isCPU:
         layoutLocation = tablePosToScreen(userPosition, table.positions[trick.whoseTurn].position)
         keyString = '-' + layoutLocation.upper() + 'PLAYER-'
-        addCPUcard(window, keyString, table, trick)
+        addCardText(window, keyString, table, trick)
+    else:
+        print("It's your turn. Enter a card from your hand in the player input box.")
+        isUserTurn = True        
 
-def playDeal(table, userPosition, window):
+def playDeal(table, userPosition, window, isUserTurn):
     deck = Deck()
     deck.shuffle()
 
     positions = list(table.positions.keys())
-    nextLeadPos = random.choice(positions)
+#    nextLeadPos = random.choice(positions)
+    nextLeadPos = userPosition # remove after testing user leading
 
     deal = Deal(table, deck, nextLeadPos)
     displayCards(table, userPosition, window)
 
-    playTrick(table, nextLeadPos, window, userPosition)
+    playTrick(table, nextLeadPos, window, userPosition, isUserTurn)
 
 def main():
     mainTable = Table([])
     positions = list(mainTable.positions.keys())
+    isUserTurn = False
 
     sg.theme('BluePurple')
     layout_intro = [[sg.Text("Let's play bridge!\nEnter your name: ", key='-INTRO-')],
@@ -127,10 +132,12 @@ def main():
               [sg.Combo(positions, key='-POSITION-')],
               [sg.Button('Start')],
               [sg.Text('', key='-ERRORTEXT-')]]
-    layout_deal = [[sg.Output(size=(40, 5))],
+    layout_deal = [[sg.Output(size=(50, 5))],
                    [sg.Text('Top Player', key='-TOPPLAYER-')],
                    [sg.Text('Left Player', key='-LEFTPLAYER-'), sg.Text('Right Player', key='-RIGHTPLAYER-', justification='r')],
-                   [sg.Text('User', key='-USERPLAYER-')]]
+                   [sg.Text('User', key='-USERPLAYER-')],
+                   [sg.Text('Player Input: ', key='-USERINPUTTEXT-')],
+                   [sg.Input(key='-USERINPUT-'), sg.Button('Submit')]]
     
     layout = [[sg.Column(layout_intro, key='-COLINTRO-'), sg.Column(layout_deal, visible=False, key='-COLDEAL-')],
               [sg.Button('Exit')]]
@@ -149,9 +156,11 @@ def main():
                 window['-COLINTRO-'].update(visible=False)
                 window['-COLDEAL-'].update(visible=True)
                 print('Playing a new deal...')
-                playDeal(mainTable, values['-POSITION-'], window)
+                playDeal(mainTable, values['-POSITION-'], window, isUserTurn)
             else:
                 window['-ERRORTEXT-'].update('Please enter your name and select a position from the dropdown before clicking Start.')
+        if event == 'Submit' and isUserTurn:
+            print('Reading player input.')
 
 
 if __name__ == "__main__":
