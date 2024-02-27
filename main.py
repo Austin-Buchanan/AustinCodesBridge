@@ -86,18 +86,23 @@ def displayCards(table, userPosition, window):
             else:
                 window['-RIGHTPLAYER-'].update(f"{table.positions[position].name} ({position}){cardsToStr(table.positions[position].playerHand.cards)}")
 
+def addCPUcard(window, key, table, trick):
+    # determine card played
+    trick.cardsPlayed.append(table.positions[trick.whoseTurn].playerHand.playRandomCard(trick.suitToFollow))
+    print(f"{table.positions[trick.whoseTurn].name} plays {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}.")
+    previousText = window[key].get()
+    window[key].update(previousText + f"\nCard Played - {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}")
+
 def playTrick(table, nextLeadPos, window, userPosition):
     trick = Trick(nextLeadPos, 'NT')
-    suitToFollow = ''
     print(f"\nPlaying a new trick. {table.positions[nextLeadPos].name} ({nextLeadPos}) will lead.")
 
-    if table.positions[trick.whoseTurn].isCPU:
-        trick.cardsPlayed.append(table.positions[trick.whoseTurn].playerHand.playRandomCard(suitToFollow))
-        print(f"{table.positions[trick.whoseTurn].name} plays {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}.")
-
-        #layoutLocation = tablePosToScreen(userPosition, table.positions[trick.whoseTurn].position)
-        
-
+    if table.findPartner(table.positions[userPosition]).position == nextLeadPos:
+        addCPUcard(window, '-TOPPLAYER-', table, trick)
+    elif table.positions[trick.whoseTurn].isCPU:
+        layoutLocation = tablePosToScreen(userPosition, table.positions[trick.whoseTurn].position)
+        keyString = '-' + layoutLocation.upper() + 'PLAYER-'
+        addCPUcard(window, keyString, table, trick)
 
 def playDeal(table, userPosition, window):
     deck = Deck()
