@@ -4,6 +4,7 @@ from deal import Deal
 from table import Table
 from hand import Hand
 from trick import Trick
+from card import Card
 import random, sys
 import PySimpleGUI as sg 
 
@@ -86,28 +87,68 @@ def displayCards(table, userPosition, window):
             else:
                 window['-RIGHTPLAYER-'].update(f"{table.positions[position].name} ({position}){cardsToStr(table.positions[position].playerHand.cards)}")
 
-def addCardText(window, key, table, trick):
+def addCPUcard(window, key, table, trick):
     # determine card played
     trick.cardsPlayed.append(table.positions[trick.whoseTurn].playerHand.playRandomCard(trick.suitToFollow))
     print(f"{table.positions[trick.whoseTurn].name} plays {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}.")
     previousText = window[key].get()
     window[key].update(previousText + f"\nCard Played - {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}")
 
-def playTrick(table, nextLeadPos, window, userPosition, isUserTurn):
+def checkIfCard(strIn):
+    if strIn[0] not in Deck.suits:
+        return False
+    if strIn[1] not in Deck.cardValues:
+        return False
+    return True
+
+def readUserInput(window):
+    validSubmission = False
+    userInput = ''
+    while True:
+        event, values = window.read()
+        if event == sg.WIN_CLOSED or event == 'Exit':
+            break
+        elif event == 'Submit':
+            print('Reading your input.')
+            userInput = values['-USERINPUT-'].strip().upper()
+            print('Your input was ' + userInput)
+            if len(userInput) != 2:
+                print('Your submission was poorly formatted. Please enter the character for the suit followed by the character for the card value. For example, to submit the ace of spades, enter SA')
+                break
+            elif not checkIfCard(userInput):
+                print('Your submission was not a valid card. Please try again.')
+                break
+            else:
+                validSubmission = True
+                break
+    window['-USERINPUT-'].update('')
+    if not validSubmission:
+        readUserInput(window)
+    return userInput
+
+def playTrick(table, nextLeadPos, window, userPosition):
     trick = Trick(nextLeadPos, 'NT')
     print(f"Playing a new trick. {table.positions[nextLeadPos].name} ({nextLeadPos}) will lead.")
 
     if table.findPartner(table.positions[userPosition]).position == nextLeadPos:
-        addCardText(window, '-TOPPLAYER-', table, trick)
+        addCPUcard(window, '-TOPPLAYER-', table, trick)
     elif table.positions[trick.whoseTurn].isCPU:
         layoutLocation = tablePosToScreen(userPosition, table.positions[trick.whoseTurn].position)
         keyString = '-' + layoutLocation.upper() + 'PLAYER-'
-        addCardText(window, keyString, table, trick)
+        addCPUcard(window, keyString, table, trick)
     else:
         print("It's your turn. Enter a card from your hand in the player input box.")
-        isUserTurn = True        
+        userInput = readUserInput(window)
+        inHand = False
+        for card in table.positions[userPosition].playerHand.cards:
+            if card.suit == userInput[0] and card.value == userInput[1]:
+                inHand = True
+        if not inHand:
+            print('The card you entered is not in your hand. Please try again.')
+        else:
+            print('You played a card from your hand.')
 
-def playDeal(table, userPosition, window, isUserTurn):
+def playDeal(table, userPosition, window):
     deck = Deck()
     deck.shuffle()
 
@@ -118,12 +159,11 @@ def playDeal(table, userPosition, window, isUserTurn):
     deal = Deal(table, deck, nextLeadPos)
     displayCards(table, userPosition, window)
 
-    playTrick(table, nextLeadPos, window, userPosition, isUserTurn)
+    playTrick(table, nextLeadPos, window, userPosition)
 
 def main():
     mainTable = Table([])
     positions = list(mainTable.positions.keys())
-    isUserTurn = False
 
     sg.theme('BluePurple')
     layout_intro = [[sg.Text("Let's play bridge!\nEnter your name: ", key='-INTRO-')],
@@ -156,11 +196,9 @@ def main():
                 window['-COLINTRO-'].update(visible=False)
                 window['-COLDEAL-'].update(visible=True)
                 print('Playing a new deal...')
-                playDeal(mainTable, values['-POSITION-'], window, isUserTurn)
+                playDeal(mainTable, values['-POSITION-'], window)
             else:
                 window['-ERRORTEXT-'].update('Please enter your name and select a position from the dropdown before clicking Start.')
-        if event == 'Submit' and isUserTurn:
-            print('Reading player input.')
 
 
 if __name__ == "__main__":
