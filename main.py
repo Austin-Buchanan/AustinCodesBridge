@@ -1,152 +1,59 @@
-from player import Player
 from deck import Deck
 from deal import Deal
 from table import Table
-from hand import Hand
 from trick import Trick
-from card import Card
-import random, sys
+from gameUtilities import fillTable, positionsToText, tablePosToScreen, readUserInput, checkHasSuit
+from displayUtilities import displayCards
+import random
 import PySimpleGUI as sg 
 
-def fillTable(table, username, userPosition):
-    user = Player(username, False, userPosition, Hand(username, []))
-    table.addPlayer(user)
-    otherPlayerNames = ['Allison', 'Blake', 'Catherine', 'Dylan']
-    if username in otherPlayerNames:
-        otherPlayerNames.remove(username)
-    for i in range(3):
-        emptyPosStr = ''
-        if table.positions['north'] is None:
-            emptyPosStr = 'north'
-        elif table.positions['east'] is None:
-            emptyPosStr = 'east'
-        elif table.positions['south'] is None:
-            emptyPosStr = 'south'
-        elif table.positions['west'] is None:
-            emptyPosStr = 'west'
-        newPlayer = Player(otherPlayerNames[0], True, emptyPosStr, Hand(otherPlayerNames[0], []))
-        otherPlayerNames.remove(newPlayer.name)
-        table.addPlayer(newPlayer)    
-
-def positionsToText(table):
-    infoText = ''
-    positions = list(table.positions.keys())
-    for position in positions:
-        infoText += f"{table.positions[position].name} is playing {position}.\n"
-    return infoText
-
-def cardsToStr(cards):
-    spadeStr = 'S: '
-    heartStr = 'H: '
-    diamondStr = 'D: '
-    clubStr = 'C: '
-    for card in cards:
-        match card.suit:
-            case 'S':
-                spadeStr += card.value + ' '
-            case 'H':
-                heartStr += card.value + ' '
-            case 'D':
-                diamondStr += card.value + ' '
-            case 'C':
-                clubStr += card.value + ' '
-    return '\n' + spadeStr + '\n' + heartStr + '\n' + diamondStr + '\n' + clubStr     
-
-def tablePosToScreen(userPos, inPos):
-    match userPos:
-        case 'north':
-            if inPos == 'east':
-                return 'left'
-            return 'right'
-        case 'east':
-            if inPos == 'south':
-                return 'left'
-            return 'right'
-        case 'south':
-            if inPos == 'west':
-                return 'left'
-            return 'right'
-        case 'west':
-            if inPos == 'north':
-                return 'left'
-            return 'right'
-    return ''
-
-def displayCards(table, userPosition, window):
-    positions = list(table.positions.keys())
-    for position in positions:
-        table.positions[position].playerHand.organizeHand()
-        if table.findPartner(table.positions[userPosition]).position == position:
-            window['-TOPPLAYER-'].update(f"{table.positions[position].name} ({position}){cardsToStr(table.positions[position].playerHand.cards)}")
-        elif position == userPosition:
-            window['-USERPLAYER-'].update(f"{table.positions[position].name} ({position}){cardsToStr(table.positions[position].playerHand.cards)}")
-        else:
-            screenPos = tablePosToScreen(userPosition, position)
-            if screenPos == 'left':
-                window['-LEFTPLAYER-'].update(f"{table.positions[position].name} ({position}){cardsToStr(table.positions[position].playerHand.cards)}")
-            else:
-                window['-RIGHTPLAYER-'].update(f"{table.positions[position].name} ({position}){cardsToStr(table.positions[position].playerHand.cards)}")
-
-def addCPUcard(window, key, table, trick):
-    # determine card played
-    trick.cardsPlayed.append(table.positions[trick.whoseTurn].playerHand.playRandomCard(trick.suitToFollow))
-    print(f"{table.positions[trick.whoseTurn].name} plays {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}.")
+def handleCPUturn(window, key, player, trick):
+    trick.cardsPlayed.append(player.playerHand.playRandomCard(trick.suitToFollow))
+    print(f"{player.name} plays {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}.")
     previousText = window[key].get()
     window[key].update(previousText + f"\nCard Played - {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}")
 
-def checkIfCard(strIn):
-    if strIn[0] not in Deck.suits:
-        return False
-    if strIn[1] not in Deck.cardValues:
-        return False
-    return True
+def resolveUserPlay(userPlayer, userInput, trick, window):
+    trick.cardsPlayed.append(userPlayer.playerHand.playCard(userInput[0], userInput[1]))
+    print(f"{userPlayer.name} plays {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}.")
+    previousText = window['-USERPLAYER-'].get()
+    window['-USERPLAYER-'].update(previousText + f"\nCardPlayed - {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}")   
 
-def readUserInput(window):
-    validSubmission = False
-    userInput = ''
-    while True:
-        event, values = window.read()
-        if event == sg.WIN_CLOSED or event == 'Exit':
-            break
-        elif event == 'Submit':
-            print('Reading your input.')
-            userInput = values['-USERINPUT-'].strip().upper()
-            print('Your input was ' + userInput)
-            if len(userInput) != 2:
-                print('Your submission was poorly formatted. Please enter the character for the suit followed by the character for the card value. For example, to submit the ace of spades, enter SA')
-                break
-            elif not checkIfCard(userInput):
-                print('Your submission was not a valid card. Please try again.')
-                break
-            else:
-                validSubmission = True
-                break
-    window['-USERINPUT-'].update('')
-    if not validSubmission:
-        readUserInput(window)
-    return userInput
-
+def handleUserTurn(window, userPlayer, trick):
+    userInput = readUserInput(window)
+    inHand = False
+    for card in userPlayer.playerHand.cards:
+        if card.suit == userInput[0] and card.value == userInput[1]:
+            inHand = True
+    if not inHand:
+        print('The card you entered is not in your hand. Please try again.')
+        handleUserTurn(window, userPlayer, trick)
+    elif len(trick.cardsPlayed) > 0 and userInput[0] != trick.suitToFollow:
+        # check if the user has any cards matching suitToFollow in their hand
+        if checkHasSuit(userPlayer.playerHand, trick.suitToFollow):
+            print('You must play a card that follows suit. Please try again.')
+            handleUserTurn(window, userPlayer, trick)
+        else:
+            resolveUserPlay(userPlayer, userInput, trick, window)         
+    else:
+        resolveUserPlay(userPlayer, userInput, trick, window)
+        
 def playTrick(table, nextLeadPos, window, userPosition):
     trick = Trick(nextLeadPos, 'NT')
     print(f"Playing a new trick. {table.positions[nextLeadPos].name} ({nextLeadPos}) will lead.")
 
-    if table.findPartner(table.positions[userPosition]).position == nextLeadPos:
-        addCPUcard(window, '-TOPPLAYER-', table, trick)
-    elif table.positions[trick.whoseTurn].isCPU:
-        layoutLocation = tablePosToScreen(userPosition, table.positions[trick.whoseTurn].position)
+    userPlayer = table.positions[userPosition]
+    nextPlayer = table.positions[trick.whoseTurn]
+
+    if table.findPartner(userPlayer).position == nextPlayer.position:
+        handleCPUturn(window, '-TOPPLAYER-', nextPlayer, trick)
+    elif nextPlayer.isCPU:
+        layoutLocation = tablePosToScreen(userPosition, nextPlayer.position)
         keyString = '-' + layoutLocation.upper() + 'PLAYER-'
-        addCPUcard(window, keyString, table, trick)
+        handleCPUturn(window, keyString, nextPlayer, trick)
     else:
         print("It's your turn. Enter a card from your hand in the player input box.")
-        userInput = readUserInput(window)
-        inHand = False
-        for card in table.positions[userPosition].playerHand.cards:
-            if card.suit == userInput[0] and card.value == userInput[1]:
-                inHand = True
-        if not inHand:
-            print('The card you entered is not in your hand. Please try again.')
-        else:
-            print('You played a card from your hand.')
+        handleUserTurn(window, userPlayer, trick)
 
 def playDeal(table, userPosition, window):
     deck = Deck()

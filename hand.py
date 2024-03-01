@@ -96,3 +96,9 @@ class Hand:
                 return card
         return None
 
+    def playCard(self, suitIn, valueIn):
+        for card in self.cards:
+            if card.suit == suitIn and card.value == valueIn:
+                self.cards.remove(card)
+                return card
+        return None
