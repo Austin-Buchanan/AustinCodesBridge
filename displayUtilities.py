@@ -48,3 +48,6 @@ def displayCards(table, userPosition, window):
                 window['-LEFTPLAYER-'].update(f"{table.positions[position].name} ({position}){cardsToStr(table.positions[position].playerHand.cards)}")
             else:
                 window['-RIGHTPLAYER-'].update(f"{table.positions[position].name} ({position}){cardsToStr(table.positions[position].playerHand.cards)}")
+
+def displayPlayerHand(key, player, window):
+    window[key].update(f"{player.name} ({player.position}){cardsToStr(player.playerHand.cards)}")

@@ -3,19 +3,21 @@ from deal import Deal
 from table import Table
 from trick import Trick
 from gameUtilities import fillTable, positionsToText, tablePosToScreen, readUserInput, checkHasSuit
-from displayUtilities import displayCards
+from displayUtilities import displayCards, displayPlayerHand
 import random
 import PySimpleGUI as sg 
 
 def handleCPUturn(window, key, player, trick):
     trick.cardsPlayed.append(player.playerHand.playRandomCard(trick.suitToFollow))
     print(f"{player.name} plays {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}.")
+    displayPlayerHand(key, player, window)
     previousText = window[key].get()
     window[key].update(previousText + f"\nCard Played - {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}")
 
 def resolveUserPlay(userPlayer, userInput, trick, window):
     trick.cardsPlayed.append(userPlayer.playerHand.playCard(userInput[0], userInput[1]))
     print(f"{userPlayer.name} plays {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}.")
+    displayPlayerHand('-USERPLAYER-', userPlayer, window)
     previousText = window['-USERPLAYER-'].get()
     window['-USERPLAYER-'].update(previousText + f"\nCardPlayed - {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}")   
 
@@ -43,17 +45,30 @@ def playTrick(table, nextLeadPos, window, userPosition):
     print(f"Playing a new trick. {table.positions[nextLeadPos].name} ({nextLeadPos}) will lead.")
 
     userPlayer = table.positions[userPosition]
-    nextPlayer = table.positions[trick.whoseTurn]
 
-    if table.findPartner(userPlayer).position == nextPlayer.position:
-        handleCPUturn(window, '-TOPPLAYER-', nextPlayer, trick)
-    elif nextPlayer.isCPU:
-        layoutLocation = tablePosToScreen(userPosition, nextPlayer.position)
-        keyString = '-' + layoutLocation.upper() + 'PLAYER-'
-        handleCPUturn(window, keyString, nextPlayer, trick)
-    else:
-        print("It's your turn. Enter a card from your hand in the player input box.")
-        handleUserTurn(window, userPlayer, trick)
+    while len(trick.cardsPlayed) < 4:
+        nextPlayer = table.positions[trick.whoseTurn]
+
+        if table.findPartner(userPlayer).position == nextPlayer.position:
+            handleCPUturn(window, '-TOPPLAYER-', nextPlayer, trick)
+        elif nextPlayer.isCPU:
+            layoutLocation = tablePosToScreen(userPosition, nextPlayer.position)
+            keyString = '-' + layoutLocation.upper() + 'PLAYER-'
+            handleCPUturn(window, keyString, nextPlayer, trick)
+        else:
+            print("It's your turn. Enter a card from your hand in the player input box.")
+            handleUserTurn(window, userPlayer, trick)
+
+        if len(trick.cardsPlayed) == 1:
+            trick.suitToFollow = trick.cardsPlayed[0].suit
+
+        trick.nextTurn()
+
+    # End trick and determine winner
+    print('The trick has ended.')
+    winningCard = trick.findTrickWinner()
+    print(f"The winner is {winningCard.ownerName}.")
+    return winningCard.ownerName
 
 def playDeal(table, userPosition, window):
     deck = Deck()
@@ -64,9 +79,16 @@ def playDeal(table, userPosition, window):
     nextLeadPos = userPosition # remove after testing user leading
 
     deal = Deal(table, deck, nextLeadPos)
-    displayCards(table, userPosition, window)
 
-    playTrick(table, nextLeadPos, window, userPosition)
+    while deal.tricksPlayed < 13:
+        displayCards(table, userPosition, window)
+        winnerName = playTrick(table, nextLeadPos, window, userPosition)
+        nextLeadPos = table.findPlayerPos(winnerName)
+        deal.tricksPlayed += 1
+    
+    winner = deal.findDealWinner()
+    winnerPartner = table.findPartner(winner)
+    print(f"{winner.name} and {winnerPartner.name} win!")
 
 def main():
     mainTable = Table([])
@@ -79,7 +101,7 @@ def main():
               [sg.Combo(positions, key='-POSITION-')],
               [sg.Button('Start')],
               [sg.Text('', key='-ERRORTEXT-')]]
-    layout_deal = [[sg.Output(size=(50, 5))],
+    layout_deal = [[sg.Output(size=(50, 10))],
                    [sg.Text('Top Player', key='-TOPPLAYER-')],
                    [sg.Text('Left Player', key='-LEFTPLAYER-'), sg.Text('Right Player', key='-RIGHTPLAYER-', justification='r')],
                    [sg.Text('User', key='-USERPLAYER-')],
