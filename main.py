@@ -4,22 +4,26 @@ from table import Table
 from trick import Trick
 from gameUtilities import fillTable, positionsToText, tablePosToScreen, readUserInput, checkHasSuit
 from displayUtilities import displayCards, displayPlayerHand
-import random
+import random, time
 import PySimpleGUI as sg 
 
 def handleCPUturn(window, key, player, trick):
     trick.cardsPlayed.append(player.playerHand.playRandomCard(trick.suitToFollow))
-    print(f"{player.name} plays {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}.")
     displayPlayerHand(key, player, window)
     previousText = window[key].get()
     window[key].update(previousText + f"\nCard Played - {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}")
+    print(f"{player.name} plays {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}.")
+    window.refresh()
+    time.sleep(1)
 
 def resolveUserPlay(userPlayer, userInput, trick, window):
     trick.cardsPlayed.append(userPlayer.playerHand.playCard(userInput[0], userInput[1]))
     print(f"{userPlayer.name} plays {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}.")
     displayPlayerHand('-USERPLAYER-', userPlayer, window)
     previousText = window['-USERPLAYER-'].get()
-    window['-USERPLAYER-'].update(previousText + f"\nCardPlayed - {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}")   
+    window['-USERPLAYER-'].update(previousText + f"\nCardPlayed - {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}")
+    window.refresh()
+    time.sleep(1)   
 
 def handleUserTurn(window, userPlayer, trick):
     userInput = readUserInput(window)
@@ -68,6 +72,8 @@ def playTrick(table, nextLeadPos, window, userPosition):
     print('The trick has ended.')
     winningCard = trick.findTrickWinner()
     print(f"The winner is {winningCard.ownerName}.")
+    window.refresh()
+    time.sleep(1)
     return winningCard.ownerName
 
 def playDeal(table, userPosition, window):
@@ -75,13 +81,13 @@ def playDeal(table, userPosition, window):
     deck.shuffle()
 
     positions = list(table.positions.keys())
-#    nextLeadPos = random.choice(positions)
-    nextLeadPos = userPosition # remove after testing user leading
+    nextLeadPos = random.choice(positions)
 
     deal = Deal(table, deck, nextLeadPos)
 
     while deal.tricksPlayed < 13:
         displayCards(table, userPosition, window)
+        window.refresh()
         winnerName = playTrick(table, nextLeadPos, window, userPosition)
         nextLeadPos = table.findPlayerPos(winnerName)
         deal.tricksPlayed += 1
