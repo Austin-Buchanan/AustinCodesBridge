@@ -44,8 +44,8 @@ def handleUserTurn(window, userPlayer, trick):
     else:
         resolveUserPlay(userPlayer, userInput, trick, window)
         
-def playTrick(table, nextLeadPos, window, userPosition):
-    trick = Trick(nextLeadPos, 'NT')
+def playTrick(table, nextLeadPos, window, userPosition, trumpType):
+    trick = Trick(nextLeadPos, trumpType)
     print(f"Playing a new trick. {table.positions[nextLeadPos].name} ({nextLeadPos}) will lead.")
 
     userPlayer = table.positions[userPosition]
@@ -80,15 +80,20 @@ def playDeal(table, userPosition, window):
     deck = Deck()
     deck.shuffle()
 
-    positions = list(table.positions.keys())
-    nextLeadPos = random.choice(positions)
+    nextLeadPos = userPosition # replace if bidding is introduced in the future so other players can be the declarer, not just the user
 
     deal = Deal(table, deck, nextLeadPos)
+
+    trumpTypes = ['S', 'H', 'D', 'C', 'NT']
+    trumpType = random.choice(trumpTypes)
+    print(f"The trump suit is {trumpType}.")
+    window['-TRUMPTEXT-'].update(f"Trump Suit: {trumpType}")
+    window.refresh()
 
     while deal.tricksPlayed < 13:
         displayCards(table, userPosition, window)
         window.refresh()
-        winnerName = playTrick(table, nextLeadPos, window, userPosition)
+        winnerName = playTrick(table, nextLeadPos, window, userPosition, trumpType)
         nextLeadPos = table.findPlayerPos(winnerName)
         deal.tricksPlayed += 1
     
@@ -108,6 +113,9 @@ def main():
               [sg.Button('Start')],
               [sg.Text('', key='-ERRORTEXT-')]]
     layout_deal = [[sg.Output(size=(50, 10))],
+                   [sg.Text('Trump Suit: ', key='-TRUMPTEXT-')],
+                   [sg.Text('North-South Score: ', key='-NSSCORE-')],
+                   [sg.Text('East-West Score: ', key='-EWSCORE-')],
                    [sg.Text('Top Player', key='-TOPPLAYER-')],
                    [sg.Text('Left Player', key='-LEFTPLAYER-'), sg.Text('Right Player', key='-RIGHTPLAYER-', justification='r')],
                    [sg.Text('User', key='-USERPLAYER-')],
