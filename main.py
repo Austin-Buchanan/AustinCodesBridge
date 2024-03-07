@@ -2,8 +2,8 @@ from deck import Deck
 from deal import Deal
 from table import Table
 from trick import Trick
-from gameUtilities import fillTable, positionsToText, tablePosToScreen, readUserInput, checkHasSuit
-from displayUtilities import displayCards, displayPlayerHand
+from gameUtilities import fillTable, positionsToText, tablePosToScreen, readUserInput, checkHasSuit, incrementScore
+from displayUtilities import displayCards, displayPlayerHand, updateScoreDisplay
 import random, time
 import PySimpleGUI as sg 
 
@@ -96,10 +96,16 @@ def playDeal(table, userPosition, window):
         winnerName = playTrick(table, nextLeadPos, window, userPosition, trumpType)
         nextLeadPos = table.findPlayerPos(winnerName)
         deal.tricksPlayed += 1
+        incrementScore(nextLeadPos, deal)
+        updateScoreDisplay(window, deal)
     
-    winner = deal.findDealWinner()
-    winnerPartner = table.findPartner(winner)
-    print(f"{winner.name} and {winnerPartner.name} win!")
+    winners = deal.findDealWinners()
+    if winners == 'tie':
+        print('The deal ended in a tie.')
+    else:
+        print(f"{winners} win!")
+    window.refresh()
+    
 
 def main():
     mainTable = Table([])

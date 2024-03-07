@@ -2,6 +2,8 @@ from player import Player
 
 class Deal:
     tricksPlayed = 0
+    scoreNS = 0
+    scoreEW = 0
 
     def __init__(self, dealTable, dealDeck, firstLeadPos):
         self.dealTable = dealTable
@@ -30,11 +32,12 @@ class Deal:
             cardInstance.ownerName = self.dealTable.positions[positionString].name
             self.dealTable.positions[positionString].playerHand.addCard(cardInstance)
 
-    def findDealWinner(self):
-        winner = Player("", False, "none")
-        for playerInstance in self.playerList:
-            if playerInstance.tricksWon > winner.tricksWon:
-                winner = playerInstance
-        return winner
+    def findDealWinners(self):
+        if self.scoreNS > self.scoreEW:
+            return 'North-South'
+        elif self.scoreNS < self.scoreEW:
+            return 'East-West'
+        else:
+            return 'tie'
     
 #    def setNewLeader(self, leadPos)

@@ -107,3 +107,10 @@ def checkHasSuit(hand, suitIn):
         if card.suit == suitIn:
             return True
     return False
+
+def incrementScore(position, deal):
+    match position:
+        case 'east' | 'west':
+            deal.scoreEW += 1
+        case 'north' | 'south':
+            deal.scoreNS += 1
