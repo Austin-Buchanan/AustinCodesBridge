@@ -84,6 +84,7 @@ def playDeal(table, userPosition, window):
 
     deal = Deal(table, deck, nextLeadPos)
 
+    # To Do: implement determineTrump() in gameUtilities
     trumpTypes = ['S', 'H', 'D', 'C', 'NT']
     trumpType = random.choice(trumpTypes)
     print(f"The trump suit is {trumpType}.")

@@ -114,3 +114,19 @@ def incrementScore(position, deal):
             deal.scoreEW += 1
         case 'north' | 'south':
             deal.scoreNS += 1
+
+def determineTrump(table, userPosition):
+    # create a collection of cards by suit composed of the user's hand and their partners
+    combinedHands = {
+        'S': [],
+        'H': [],
+        'D': [],
+        'C': []  
+    }
+    userPlayer = table[userPosition]
+    for card in userPlayer.playerHand.cards:
+        combinedHands[card.suit].append(card)
+    partner = table.findPartner(userPlayer)
+    for card in partner.playerHand.cards:
+        combinedHands[card.suit].append(card)
+    
