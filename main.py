@@ -105,11 +105,23 @@ def playDeal(table, userPosition, window):
     else:
         print(f"{winners} win!")
     window.refresh()
-    
+
+def checkPlayAgain(window):
+    while True:
+        event, values = window.read()
+        if event == sg.WIN_CLOSED or event == 'Exit':
+            break
+        elif event == 'Play Again':
+            window['-NSSCORE-'].update('North-South Score: ')
+            window['-EWSCORE-'].update('East-West Score: ')
+            window['-COLPLAYAGAIN-'].update(visible=False)
+            return True
+    return False
 
 def main():
     mainTable = Table([])
     positions = list(mainTable.positions.keys())
+    playing = True
 
     sg.theme('BluePurple')
     layout_intro = [[sg.Text("Let's play bridge!\nEnter your name: ", key='-INTRO-')],
@@ -118,6 +130,7 @@ def main():
               [sg.Combo(positions, key='-POSITION-')],
               [sg.Button('Start')],
               [sg.Text('', key='-ERRORTEXT-')]]
+    layout_play_again = [[sg.Text('Do you want to play again?', key='-PLAYAGAINTEXT-'), sg.Button('Play Again')]]
     layout_deal = [[sg.Output(size=(50, 10))],
                    [sg.Text('Trump Suit: ', key='-TRUMPTEXT-')],
                    [sg.Text('North-South Score: ', key='-NSSCORE-')],
@@ -128,7 +141,9 @@ def main():
                    [sg.Text('Player Input: ', key='-USERINPUTTEXT-')],
                    [sg.Input(key='-USERINPUT-'), sg.Button('Submit')]]
     
-    layout = [[sg.Column(layout_intro, key='-COLINTRO-'), sg.Column(layout_deal, visible=False, key='-COLDEAL-')],
+    layout = [[sg.Column(layout_intro, key='-COLINTRO-'),
+               sg.Column(layout_play_again, visible=False, key='-COLPLAYAGAIN-'),
+               sg.Column(layout_deal, visible=False, key='-COLDEAL-')],
               [sg.Button('Exit')]]
     
     window = sg.Window('Austin Codes Bridge', layout)
@@ -144,8 +159,12 @@ def main():
                 print(positionsToText(mainTable) + f"Your partner will be {mainTable.findPartner(mainTable.positions[values['-POSITION-']]).name}.")
                 window['-COLINTRO-'].update(visible=False)
                 window['-COLDEAL-'].update(visible=True)
-                print('Playing a new deal...')
-                playDeal(mainTable, values['-POSITION-'], window)
+                while(playing):
+                    print('Playing a new deal...')
+                    playDeal(mainTable, values['-POSITION-'], window)
+                    window['-COLPLAYAGAIN-'].update(visible=True)
+                    window.refresh()
+                    playing = checkPlayAgain(window)
             else:
                 window['-ERRORTEXT-'].update('Please enter your name and select a position from the dropdown before clicking Start.')
 
