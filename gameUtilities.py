@@ -5,6 +5,7 @@ from player import Player
 from hand import Hand
 from deck import Deck
 import PySimpleGUI as sg
+import random
 
 def fillTable(table, username, userPosition):
     user = Player(username, False, userPosition, Hand(username, []))
@@ -129,4 +130,28 @@ def determineTrump(table, userPosition):
     partner = table.findPartner(userPlayer)
     for card in partner.playerHand.cards:
         combinedHands[card.suit].append(card)
+    suits = combinedHands.keys()
+    suitMajorities = []
+    for suit in suits:
+        if len(combinedHands[suit]) >= 8:
+            suitMajorities.append(suit)
+    suitMajorityCount = len(suitMajorities)
+    match suitMajorityCount:
+        case 0:
+            return 'NT'
+        case 1:
+            return suitMajorities[0]
+        case 2, 3:
+            suitLengths = []
+            for i in range(suitMajorityCount):
+                suitLengths.append(len(combinedHands[suitMajorities[i]]))
+            largestLength = max(suitLengths)
+            largestFrequency = suitLengths.count(largestLength)
+            if largestFrequency == 1:
+                return suitMajorities[suitLengths.index(largestLength)]
+            candidateIndices = [i for i, x in enumerate(suitLengths) if x == largestLength]
+            for index in candidateIndices:
+                if suitMajorities[index] == 'S' or suitMajorities[index] == 'H':
+                    return suitMajorities[index]
+            return random.choice(suitMajorities)
     
