@@ -2,14 +2,17 @@ from deck import Deck
 from deal import Deal
 from table import Table
 from trick import Trick
-from gameUtilities import fillTable, positionsToText, tablePosToScreen, readUserInput, checkHasSuit, incrementScore
-from displayUtilities import displayCards, displayPlayerHand, updateScoreDisplay
-import random, time
+from gameUtilities import fillTable, positionsToText, tablePosToScreen, readUserInput, checkHasSuit, incrementScore, determineTrump
+from displayUtilities import displayCards, displayPlayerHand, updateScoreDisplay, displayHiddenHand
+import time
 import PySimpleGUI as sg 
 
-def handleCPUturn(window, key, player, trick):
+def handleCPUturn(window, key, player, trick, isUserPartner):
     trick.cardsPlayed.append(player.playerHand.playRandomCard(trick.suitToFollow))
-    displayPlayerHand(key, player, window)
+    if isUserPartner:
+        displayPlayerHand(key, player, window)
+    else:
+        displayHiddenHand(key, player, window)
     previousText = window[key].get()
     window[key].update(previousText + f"\nCard Played - {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}")
     print(f"{player.name} plays {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}.")
@@ -54,11 +57,11 @@ def playTrick(table, nextLeadPos, window, userPosition, trumpType):
         nextPlayer = table.positions[trick.whoseTurn]
 
         if table.findPartner(userPlayer).position == nextPlayer.position:
-            handleCPUturn(window, '-TOPPLAYER-', nextPlayer, trick)
+            handleCPUturn(window, '-TOPPLAYER-', nextPlayer, trick, True)
         elif nextPlayer.isCPU:
             layoutLocation = tablePosToScreen(userPosition, nextPlayer.position)
             keyString = '-' + layoutLocation.upper() + 'PLAYER-'
-            handleCPUturn(window, keyString, nextPlayer, trick)
+            handleCPUturn(window, keyString, nextPlayer, trick, False)
         else:
             print("It's your turn. Enter a card from your hand in the player input box.")
             handleUserTurn(window, userPlayer, trick)
@@ -85,8 +88,8 @@ def playDeal(table, userPosition, window):
     deal = Deal(table, deck, nextLeadPos)
 
     # To Do: implement determineTrump() in gameUtilities
-    trumpTypes = ['S', 'H', 'D', 'C', 'NT']
-    trumpType = random.choice(trumpTypes)
+    #trumpTypes = ['S', 'H', 'D', 'C', 'NT']
+    trumpType = determineTrump(table, userPosition)
     print(f"The trump suit is {trumpType}.")
     window['-TRUMPTEXT-'].update(f"Trump Suit: {trumpType}")
     window.refresh()

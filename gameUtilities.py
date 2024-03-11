@@ -124,7 +124,7 @@ def determineTrump(table, userPosition):
         'D': [],
         'C': []  
     }
-    userPlayer = table[userPosition]
+    userPlayer = table.positions[userPosition]
     for card in userPlayer.playerHand.cards:
         combinedHands[card.suit].append(card)
     partner = table.findPartner(userPlayer)
@@ -141,7 +141,7 @@ def determineTrump(table, userPosition):
             return 'NT'
         case 1:
             return suitMajorities[0]
-        case 2, 3:
+        case 2 | 3:
             suitLengths = []
             for i in range(suitMajorityCount):
                 suitLengths.append(len(combinedHands[suitMajorities[i]]))

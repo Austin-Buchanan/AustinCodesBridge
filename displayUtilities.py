@@ -34,23 +34,27 @@ def printTrickScore(tableIn):
     for player in tableIn.positions.values():
         print(f"{player.name} ({player.position}) - {player.tricksWon}")
 
+def displayPlayerHand(key, player, window):
+    window[key].update(f"{player.name} ({player.position}){cardsToStr(player.playerHand.cards)}")
+
+def displayHiddenHand(key, player, window):
+    window[key].update(f"{player.name} ({player.position})\n[{']'*len(player.playerHand.cards)}")
+
 def displayCards(table, userPosition, window):
     positions = list(table.positions.keys())
     for position in positions:
-        table.positions[position].playerHand.organizeHand()
+        player = table.positions[position]
+        player.playerHand.organizeHand()
         if table.findPartner(table.positions[userPosition]).position == position:
-            window['-TOPPLAYER-'].update(f"{table.positions[position].name} ({position}){cardsToStr(table.positions[position].playerHand.cards)}")
+            displayPlayerHand('-TOPPLAYER-', player, window)
         elif position == userPosition:
-            window['-USERPLAYER-'].update(f"{table.positions[position].name} ({position}){cardsToStr(table.positions[position].playerHand.cards)}")
+            displayPlayerHand('-USERPLAYER-', player, window)
         else:
             screenPos = tablePosToScreen(userPosition, position)
             if screenPos == 'left':
-                window['-LEFTPLAYER-'].update(f"{table.positions[position].name} ({position}){cardsToStr(table.positions[position].playerHand.cards)}")
+                displayHiddenHand('-LEFTPLAYER-', player, window)
             else:
-                window['-RIGHTPLAYER-'].update(f"{table.positions[position].name} ({position}){cardsToStr(table.positions[position].playerHand.cards)}")
-
-def displayPlayerHand(key, player, window):
-    window[key].update(f"{player.name} ({player.position}){cardsToStr(player.playerHand.cards)}")
+                displayHiddenHand('-RIGHTPLAYER-', player, window)
 
 def updateScoreDisplay(window, deal):
     window['-NSSCORE-'].update('North-South Score: ' + str(deal.scoreNS))
