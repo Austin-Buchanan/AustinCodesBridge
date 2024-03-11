@@ -38,7 +38,10 @@ def displayPlayerHand(key, player, window):
     window[key].update(f"{player.name} ({player.position}){cardsToStr(player.playerHand.cards)}")
 
 def displayHiddenHand(key, player, window):
-    window[key].update(f"{player.name} ({player.position})\n[{']'*len(player.playerHand.cards)}")
+    if len(player.playerHand.cards) > 0:
+        window[key].update(f"{player.name} ({player.position})\n[{']'*len(player.playerHand.cards)}")
+    else:
+        window[key].update(f"{player.name} ({player.position})")
 
 def displayCards(table, userPosition, window):
     positions = list(table.positions.keys())
@@ -59,4 +62,12 @@ def displayCards(table, userPosition, window):
 def updateScoreDisplay(window, deal):
     window['-NSSCORE-'].update('North-South Score: ' + str(deal.scoreNS))
     window['-EWSCORE-'].update('East-West Score: ' + str(deal.scoreEW))
+    window.refresh()
+
+def centerWindow(window):
+    screenSize = window.get_screen_size()
+    windowSize = window.size
+    x = (screenSize[0] - windowSize[0]) // 2
+    y = (screenSize[1] - windowSize[1]) // 2
+    window.move(x, y)
     window.refresh()

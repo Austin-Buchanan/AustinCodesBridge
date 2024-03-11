@@ -154,4 +154,10 @@ def determineTrump(table, userPosition):
                 if suitMajorities[index] == 'S' or suitMajorities[index] == 'H':
                     return suitMajorities[index]
             return random.choice(suitMajorities)
-    
+
+def playLow(hand, trick):
+    lowCard = hand.lowCard(trick.suitToFollow)
+    if lowCard is None:
+        return None
+    hand.playCard(lowCard.suit, lowCard.value)
+    return 'success'

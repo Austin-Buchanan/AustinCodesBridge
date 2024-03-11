@@ -3,7 +3,7 @@ from deal import Deal
 from table import Table
 from trick import Trick
 from gameUtilities import fillTable, positionsToText, tablePosToScreen, readUserInput, checkHasSuit, incrementScore, determineTrump
-from displayUtilities import displayCards, displayPlayerHand, updateScoreDisplay, displayHiddenHand
+from displayUtilities import displayCards, displayPlayerHand, updateScoreDisplay, displayHiddenHand, centerWindow
 import time
 import PySimpleGUI as sg 
 
@@ -19,12 +19,17 @@ def handleCPUturn(window, key, player, trick, isUserPartner):
     window.refresh()
     time.sleep(1)
 
-def resolveUserPlay(userPlayer, userInput, trick, window):
-    trick.cardsPlayed.append(userPlayer.playerHand.playCard(userInput[0], userInput[1]))
-    print(f"{userPlayer.name} plays {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}.")
-    displayPlayerHand('-USERPLAYER-', userPlayer, window)
-    previousText = window['-USERPLAYER-'].get()
-    window['-USERPLAYER-'].update(previousText + f"\nCardPlayed - {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}")
+def resolveUserPlay(player, userInput, trick, window):
+    trick.cardsPlayed.append(player.playerHand.playCard(userInput[0], userInput[1]))
+    print(f"{player.name} plays {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}.")
+    key = ''
+    if player.isCPU:
+        key = '-TOPPLAYER-'
+    else:
+        key = '-USERPLAYER-'
+    displayPlayerHand(key, player, window)
+    previousText = window[key].get()
+    window[key].update(previousText + f"\nCardPlayed - {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}")
     window.refresh()
     time.sleep(1)   
 
@@ -57,7 +62,8 @@ def playTrick(table, nextLeadPos, window, userPosition, trumpType):
         nextPlayer = table.positions[trick.whoseTurn]
 
         if table.findPartner(userPlayer).position == nextPlayer.position:
-            handleCPUturn(window, '-TOPPLAYER-', nextPlayer, trick, True)
+            print("It's your partner's turn. What card should your partner play?")
+            handleUserTurn(window, nextPlayer, trick)
         elif nextPlayer.isCPU:
             layoutLocation = tablePosToScreen(userPosition, nextPlayer.position)
             keyString = '-' + layoutLocation.upper() + 'PLAYER-'
@@ -143,7 +149,8 @@ def main():
                    [sg.Text('Left Player', key='-LEFTPLAYER-'), sg.Text('Right Player', key='-RIGHTPLAYER-', justification='r')],
                    [sg.Text('User', key='-USERPLAYER-')],
                    [sg.Text('Player Input: ', key='-USERINPUTTEXT-')],
-                   [sg.Input(key='-USERINPUT-'), sg.Button('Submit')]]
+                   [sg.Input(key='-USERINPUT-'), sg.Button('Submit')],
+                   [sg.Button('Play Low')]]
     
     layout = [[sg.Column(layout_intro, key='-COLINTRO-'),
                sg.Column(layout_play_again, visible=False, key='-COLPLAYAGAIN-'),
@@ -163,6 +170,7 @@ def main():
                 print(positionsToText(mainTable) + f"Your partner will be {mainTable.findPartner(mainTable.positions[values['-POSITION-']]).name}.")
                 window['-COLINTRO-'].update(visible=False)
                 window['-COLDEAL-'].update(visible=True)
+                centerWindow()
                 while(playing):
                     print('Playing a new deal...')
                     playDeal(mainTable, values['-POSITION-'], window)
