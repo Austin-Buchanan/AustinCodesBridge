@@ -85,19 +85,30 @@ def readUserInput(window):
         event, values = window.read()
         if event == sg.WIN_CLOSED or event == 'Exit':
             break
-        elif event == 'Submit':
+        elif event == 'Submit' or event == '-USERINPUT-Enter':
             print('Reading your input.')
             userInput = values['-USERINPUT-'].strip().upper()
             print('Your input was ' + userInput)
-            if len(userInput) != 2:
+            if userInput == 'LOW':
+                print('Following suit and playing low.')
+                validSubmission = True
+                break
+            elif len(userInput) != 2:
                 print('Your submission was poorly formatted. Please enter the character for the suit followed by the character for the card value. For example, to submit the ace of spades, enter SA')
+                readUserInput(window)
                 break
             elif not checkIfCard(userInput):
                 print('Your submission was not a valid card. Please try again.')
+                readUserInput()
                 break
             else:
                 validSubmission = True
                 break
+        elif event == 'Play Low':
+            print('Following suit and playing low.')
+            userInput = 'play-low'
+            validSubmission = True
+            break
     window['-USERINPUT-'].update('')
     if not validSubmission:
         readUserInput(window)
@@ -159,5 +170,5 @@ def playLow(hand, trick):
     lowCard = hand.lowCard(trick.suitToFollow)
     if lowCard is None:
         return None
-    hand.playCard(lowCard.suit, lowCard.value)
+    trick.cardsPlayed.append(hand.playCard(lowCard.suit, lowCard.value))
     return 'success'

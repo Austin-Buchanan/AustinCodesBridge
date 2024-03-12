@@ -2,7 +2,7 @@ from deck import Deck
 from deal import Deal
 from table import Table
 from trick import Trick
-from gameUtilities import fillTable, positionsToText, tablePosToScreen, readUserInput, checkHasSuit, incrementScore, determineTrump
+from gameUtilities import fillTable, positionsToText, tablePosToScreen, readUserInput, checkHasSuit, incrementScore, determineTrump, playLow
 from displayUtilities import displayCards, displayPlayerHand, updateScoreDisplay, displayHiddenHand, centerWindow
 import time
 import PySimpleGUI as sg 
@@ -19,8 +19,7 @@ def handleCPUturn(window, key, player, trick, isUserPartner):
     window.refresh()
     time.sleep(1)
 
-def resolveUserPlay(player, userInput, trick, window):
-    trick.cardsPlayed.append(player.playerHand.playCard(userInput[0], userInput[1]))
+def resolveUserPlay(player, trick, window):
     print(f"{player.name} plays {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}.")
     key = ''
     if player.isCPU:
@@ -35,22 +34,31 @@ def resolveUserPlay(player, userInput, trick, window):
 
 def handleUserTurn(window, userPlayer, trick):
     userInput = readUserInput(window)
-    inHand = False
-    for card in userPlayer.playerHand.cards:
-        if card.suit == userInput[0] and card.value == userInput[1]:
-            inHand = True
-    if not inHand:
-        print('The card you entered is not in your hand. Please try again.')
-        handleUserTurn(window, userPlayer, trick)
-    elif len(trick.cardsPlayed) > 0 and userInput[0] != trick.suitToFollow:
-        # check if the user has any cards matching suitToFollow in their hand
-        if checkHasSuit(userPlayer.playerHand, trick.suitToFollow):
-            print('You must play a card that follows suit. Please try again.')
+    if userInput == 'play-low' or userInput == 'LOW':
+        lowOutcome = playLow(userPlayer.playerHand, trick)
+        if lowOutcome != 'success':
+            print('A low card of the same suit could not be found. Please enter the card to play.')
             handleUserTurn(window, userPlayer, trick)
         else:
-            resolveUserPlay(userPlayer, userInput, trick, window)         
+            resolveUserPlay(userPlayer, trick, window)
     else:
-        resolveUserPlay(userPlayer, userInput, trick, window)
+        inHand = False
+        for card in userPlayer.playerHand.cards:
+            if card.suit == userInput[0] and card.value == userInput[1]:
+                inHand = True
+        if not inHand:
+            print('The card you entered is not in your hand. Please try again.')
+            handleUserTurn(window, userPlayer, trick)
+        elif len(trick.cardsPlayed) > 0 and userInput[0] != trick.suitToFollow:
+            if checkHasSuit(userPlayer.playerHand, trick.suitToFollow):
+                print('You must play a card that follows suit. Please try again.')
+                handleUserTurn(window, userPlayer, trick)
+            else:
+                trick.cardsPlayed.append(userPlayer.playerHand.playCard(userInput[0], userInput[1]))
+                resolveUserPlay(userPlayer, trick, window)         
+        else:
+            trick.cardsPlayed.append(userPlayer.playerHand.playCard(userInput[0], userInput[1]))
+            resolveUserPlay(userPlayer, trick, window)
         
 def playTrick(table, nextLeadPos, window, userPosition, trumpType):
     trick = Trick(nextLeadPos, trumpType)
@@ -93,8 +101,6 @@ def playDeal(table, userPosition, window):
 
     deal = Deal(table, deck, nextLeadPos)
 
-    # To Do: implement determineTrump() in gameUtilities
-    #trumpTypes = ['S', 'H', 'D', 'C', 'NT']
     trumpType = determineTrump(table, userPosition)
     print(f"The trump suit is {trumpType}.")
     window['-TRUMPTEXT-'].update(f"Trump Suit: {trumpType}")
@@ -157,7 +163,8 @@ def main():
                sg.Column(layout_deal, visible=False, key='-COLDEAL-')],
               [sg.Button('Exit')]]
     
-    window = sg.Window('Austin Codes Bridge', layout)
+    window = sg.Window('Austin Codes Bridge', layout, finalize=True)
+    window['-USERINPUT-'].bind("<Return>", "Enter")
 
     while True: 
         event, values = window.read()
@@ -170,7 +177,7 @@ def main():
                 print(positionsToText(mainTable) + f"Your partner will be {mainTable.findPartner(mainTable.positions[values['-POSITION-']]).name}.")
                 window['-COLINTRO-'].update(visible=False)
                 window['-COLDEAL-'].update(visible=True)
-                centerWindow()
+                centerWindow(window)
                 while(playing):
                     print('Playing a new deal...')
                     playDeal(mainTable, values['-POSITION-'], window)
