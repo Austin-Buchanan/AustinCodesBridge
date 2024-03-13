@@ -93,6 +93,10 @@ def readUserInput(window):
                 print('Following suit and playing low.')
                 validSubmission = True
                 break
+            elif userInput == 'HIGH':
+                print('Following suit and playing high.')
+                validSubmission = True
+                break
             elif len(userInput) != 2:
                 print('Your submission was poorly formatted. Please enter the character for the suit followed by the character for the card value. For example, to submit the ace of spades, enter SA')
                 readUserInput(window)
@@ -107,6 +111,11 @@ def readUserInput(window):
         elif event == 'Play Low':
             print('Following suit and playing low.')
             userInput = 'play-low'
+            validSubmission = True
+            break
+        elif event == 'Play High':
+            print('Following suit and playing high.')
+            userInput = 'play-high'
             validSubmission = True
             break
     window['-USERINPUT-'].update('')
@@ -171,4 +180,11 @@ def playLow(hand, trick):
     if lowCard is None:
         return None
     trick.cardsPlayed.append(hand.playCard(lowCard.suit, lowCard.value))
+    return 'success'
+
+def playHigh(hand, trick):
+    highCard = hand.highCard(trick.suitToFollow)
+    if highCard is None:
+        return None
+    trick.cardsPlayed.append(hand.playCard(highCard.suit, highCard.value))
     return 'success'

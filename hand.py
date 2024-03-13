@@ -108,9 +108,19 @@ class Hand:
         for card in self.cards:
             if card.suit == suitIn and lowestCard.value == '':
                 lowestCard.copyCard(card)
-            elif card.suit == suitIn and card.compareCard(lowestCard, suitIn, 'NT'):
+            elif card.suit == suitIn and card.compareCard(lowestCard, suitIn, 'NT') == lowestCard:
                 lowestCard.copyCard(card)
         if lowestCard.value != '':
             return lowestCard
         return None
                 
+    def highCard(self, suitIn):
+        highestCard = Card('', '', '')
+        for card in self.cards:
+            if card.suit == suitIn and highestCard.value == '':
+                highestCard.copyCard(card)
+            elif card.suit == suitIn and highestCard.compareCard(card, suitIn, 'NT') == card:
+                highestCard.copyCard(card)
+        if highestCard.value != '':
+            return highestCard
+        return None

@@ -2,17 +2,17 @@ from deck import Deck
 from deal import Deal
 from table import Table
 from trick import Trick
-from gameUtilities import fillTable, positionsToText, tablePosToScreen, readUserInput, checkHasSuit, incrementScore, determineTrump, playLow
-from displayUtilities import displayCards, displayPlayerHand, updateScoreDisplay, displayHiddenHand, centerWindow
+import gameUtilities as gu
+import displayUtilities as du 
 import time
 import PySimpleGUI as sg 
 
 def handleCPUturn(window, key, player, trick, isUserPartner):
     trick.cardsPlayed.append(player.playerHand.playRandomCard(trick.suitToFollow))
     if isUserPartner:
-        displayPlayerHand(key, player, window)
+        du.displayPlayerHand(key, player, window)
     else:
-        displayHiddenHand(key, player, window)
+        du.displayHiddenHand(key, player, window)
     previousText = window[key].get()
     window[key].update(previousText + f"\nCard Played - {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}")
     print(f"{player.name} plays {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}.")
@@ -26,18 +26,25 @@ def resolveUserPlay(player, trick, window):
         key = '-TOPPLAYER-'
     else:
         key = '-USERPLAYER-'
-    displayPlayerHand(key, player, window)
+    du.displayPlayerHand(key, player, window)
     previousText = window[key].get()
     window[key].update(previousText + f"\nCardPlayed - {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}")
     window.refresh()
     time.sleep(1)   
 
 def handleUserTurn(window, userPlayer, trick):
-    userInput = readUserInput(window)
+    userInput = gu.readUserInput(window)
     if userInput == 'play-low' or userInput == 'LOW':
-        lowOutcome = playLow(userPlayer.playerHand, trick)
+        lowOutcome = gu.playLow(userPlayer.playerHand, trick)
         if lowOutcome != 'success':
             print('A low card of the same suit could not be found. Please enter the card to play.')
+            handleUserTurn(window, userPlayer, trick)
+        else:
+            resolveUserPlay(userPlayer, trick, window)
+    elif userInput == 'play-high' or userInput == 'HIGH':
+        highOutcome = gu.playHigh(userPlayer.playerHand, trick)
+        if highOutcome != 'success':
+            print('A high card of the same suit could not be found. Please enter the card to play.')
             handleUserTurn(window, userPlayer, trick)
         else:
             resolveUserPlay(userPlayer, trick, window)
@@ -50,7 +57,7 @@ def handleUserTurn(window, userPlayer, trick):
             print('The card you entered is not in your hand. Please try again.')
             handleUserTurn(window, userPlayer, trick)
         elif len(trick.cardsPlayed) > 0 and userInput[0] != trick.suitToFollow:
-            if checkHasSuit(userPlayer.playerHand, trick.suitToFollow):
+            if gu.checkHasSuit(userPlayer.playerHand, trick.suitToFollow):
                 print('You must play a card that follows suit. Please try again.')
                 handleUserTurn(window, userPlayer, trick)
             else:
@@ -73,7 +80,7 @@ def playTrick(table, nextLeadPos, window, userPosition, trumpType):
             print("It's your partner's turn. What card should your partner play?")
             handleUserTurn(window, nextPlayer, trick)
         elif nextPlayer.isCPU:
-            layoutLocation = tablePosToScreen(userPosition, nextPlayer.position)
+            layoutLocation = gu.tablePosToScreen(userPosition, nextPlayer.position)
             keyString = '-' + layoutLocation.upper() + 'PLAYER-'
             handleCPUturn(window, keyString, nextPlayer, trick, False)
         else:
@@ -101,19 +108,19 @@ def playDeal(table, userPosition, window):
 
     deal = Deal(table, deck, nextLeadPos)
 
-    trumpType = determineTrump(table, userPosition)
+    trumpType = gu.determineTrump(table, userPosition)
     print(f"The trump suit is {trumpType}.")
     window['-TRUMPTEXT-'].update(f"Trump Suit: {trumpType}")
     window.refresh()
 
     while deal.tricksPlayed < 13:
-        displayCards(table, userPosition, window)
+        du.displayCards(table, userPosition, window)
         window.refresh()
         winnerName = playTrick(table, nextLeadPos, window, userPosition, trumpType)
         nextLeadPos = table.findPlayerPos(winnerName)
         deal.tricksPlayed += 1
-        incrementScore(nextLeadPos, deal)
-        updateScoreDisplay(window, deal)
+        gu.incrementScore(nextLeadPos, deal)
+        du.updateScoreDisplay(window, deal)
     
     winners = deal.findDealWinners()
     if winners == 'tie':
@@ -156,7 +163,7 @@ def main():
                    [sg.Text('User', key='-USERPLAYER-')],
                    [sg.Text('Player Input: ', key='-USERINPUTTEXT-')],
                    [sg.Input(key='-USERINPUT-'), sg.Button('Submit')],
-                   [sg.Button('Play Low')]]
+                   [sg.Button('Play Low'), sg.Button('Play High')]]
     
     layout = [[sg.Column(layout_intro, key='-COLINTRO-'),
                sg.Column(layout_play_again, visible=False, key='-COLPLAYAGAIN-'),
@@ -173,11 +180,11 @@ def main():
             break
         if event == 'Start':
             if values['-NAME-'] != '' and values['-POSITION-'] in positions:
-                fillTable(mainTable, values['-NAME-'], values['-POSITION-'])
-                print(positionsToText(mainTable) + f"Your partner will be {mainTable.findPartner(mainTable.positions[values['-POSITION-']]).name}.")
+                gu.fillTable(mainTable, values['-NAME-'], values['-POSITION-'])
+                print(gu.positionsToText(mainTable) + f"Your partner will be {mainTable.findPartner(mainTable.positions[values['-POSITION-']]).name}.")
                 window['-COLINTRO-'].update(visible=False)
                 window['-COLDEAL-'].update(visible=True)
-                centerWindow(window)
+                du.centerWindow(window)
                 while(playing):
                     print('Playing a new deal...')
                     playDeal(mainTable, values['-POSITION-'], window)
