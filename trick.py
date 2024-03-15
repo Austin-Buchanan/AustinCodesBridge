@@ -1,5 +1,4 @@
 from card import Card
-from player import Player
 
 class Trick:
     suitToFollow = ''
@@ -36,5 +35,17 @@ class Trick:
                 self.suitToFollow = self.cardsPlayed[0].suit
             elif winningCard.compareCard(self.cardsPlayed[i], self.suitToFollow, self.trump) != winningCard:
                 winningCard.copyCard(self.cardsPlayed[i])
+        return winningCard
+    
+    def findCurrentWinner(self):
+        if len(self.cardsPlayed) == 0:
+            return None
+        winningCard = Card('', '', '')
+        for card in self.cardsPlayed:
+            if winningCard.value == '':
+                winningCard.copyCard(card)
+                continue
+            if winningCard.compareCard(card, self.suitToFollow, self.trump) == card:
+                winningCard.copyCard(card)
         return winningCard
 

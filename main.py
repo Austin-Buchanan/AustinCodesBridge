@@ -3,7 +3,8 @@ from deal import Deal
 from table import Table
 from trick import Trick
 import gameUtilities as gu
-import displayUtilities as du 
+import displayUtilities as du
+import opponentAI as ai 
 import time
 import PySimpleGUI as sg 
 
