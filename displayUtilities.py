@@ -58,16 +58,17 @@ def displayCards(table, userPosition, window):
                 displayHiddenHand('-LEFTPLAYER-', player, window)
             else:
                 displayHiddenHand('-RIGHTPLAYER-', player, window)
+    centerWindowVert(window)
 
 def updateScoreDisplay(window, deal):
     window['-NSSCORE-'].update('North-South Score: ' + str(deal.scoreNS))
     window['-EWSCORE-'].update('East-West Score: ' + str(deal.scoreEW))
     window.refresh()
 
-def centerWindow(window):
+def centerWindowVert(window):
     screenSize = window.get_screen_size()
     windowSize = window.size
-    x = (screenSize[0] - windowSize[0]) // 2
+    #x = (screenSize[0] - windowSize[0]) // 2
     y = (screenSize[1] - windowSize[1]) // 2
-    window.move(x, y)
+    window.move(window.CurrentLocation()[0], y)
     window.refresh()

@@ -2,18 +2,32 @@ from deck import Deck
 from deal import Deal
 from table import Table
 from trick import Trick
+from card import Card
 import gameUtilities as gu
 import displayUtilities as du
 import opponentAI as ai 
 import time
 import PySimpleGUI as sg 
 
-def handleCPUturn(window, key, player, trick, isUserPartner):
-    trick.cardsPlayed.append(player.playerHand.playRandomCard(trick.suitToFollow))
-    if isUserPartner:
-        du.displayPlayerHand(key, player, window)
+def handleCPUturn(window, key, player, trick, table):
+    cardToPlay = Card('','','')
+
+    isPartnerWinning = False
+    winningCard = trick.findCurrentWinner()
+    if table.findPartner(player).name == winningCard.ownerName:
+        isPartnerWinning = True
+
+    if isPartnerWinning:
+        cardToPlay.copyCard(ai.findThrowAwayCard(player.hand, trick.trump))
     else:
-        du.displayHiddenHand(key, player, window)
+        winningHandCard = ai.findWinningHandCard(trick, player, table)
+        if winningHandCard is None:
+            cardToPlay.copyCard(ai.findThrowAwayCard(player.hand, trick.trump))
+        else:
+            cardToPlay.copyCard(winningHandCard)
+
+    trick.cardsPlayed.append(player.playerHand.playCard(cardToPlay.suit, cardToPlay.value))
+    du.displayHiddenHand(key, player, window)
     previousText = window[key].get()
     window[key].update(previousText + f"\nCard Played - {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}")
     print(f"{player.name} plays {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}.")
@@ -83,7 +97,7 @@ def playTrick(table, nextLeadPos, window, userPosition, trumpType):
         elif nextPlayer.isCPU:
             layoutLocation = gu.tablePosToScreen(userPosition, nextPlayer.position)
             keyString = '-' + layoutLocation.upper() + 'PLAYER-'
-            handleCPUturn(window, keyString, nextPlayer, trick, False)
+            handleCPUturn(window, keyString, nextPlayer, trick, table)
         else:
             print("It's your turn. Enter a card from your hand in the player input box.")
             handleUserTurn(window, userPlayer, trick)
@@ -155,20 +169,22 @@ def main():
               [sg.Button('Start')],
               [sg.Text('', key='-ERRORTEXT-')]]
     layout_play_again = [[sg.Text('Do you want to play again?', key='-PLAYAGAINTEXT-'), sg.Button('Play Again')]]
-    layout_deal = [[sg.Output(size=(50, 10))],
+    layout_deal_header = [[sg.Output(size=(50, 10))],
                    [sg.Text('Trump Suit: ', key='-TRUMPTEXT-')],
                    [sg.Text('North-South Score: ', key='-NSSCORE-')],
-                   [sg.Text('East-West Score: ', key='-EWSCORE-')],
-                   [sg.Text('Top Player', key='-TOPPLAYER-')],
-                   [sg.Text('Left Player', key='-LEFTPLAYER-'), sg.Text('Right Player', key='-RIGHTPLAYER-', justification='r')],
-                   [sg.Text('User', key='-USERPLAYER-')],
+                   [sg.Text('East-West Score: ', key='-EWSCORE-')]]
+    layout_partner = [[sg.Text('Top Player', key='-TOPPLAYER-', justification='left')]]
+    layout_opponents = [[sg.Text('Left Player', key='-LEFTPLAYER-', justification='left'), sg.Text('Right Player', key='-RIGHTPLAYER-', justification='right')]]
+    layout_user = [[sg.Text('User', key='-USERPLAYER-')],
                    [sg.Text('Player Input: ', key='-USERINPUTTEXT-')],
                    [sg.Input(key='-USERINPUT-'), sg.Button('Submit')],
-                   [sg.Button('Play Low'), sg.Button('Play High')]]
-    
+                   [sg.Button('Play Low'), sg.Button('Play High')]]    
     layout = [[sg.Column(layout_intro, key='-COLINTRO-'),
                sg.Column(layout_play_again, visible=False, key='-COLPLAYAGAIN-'),
-               sg.Column(layout_deal, visible=False, key='-COLDEAL-')],
+               sg.Column(layout_deal_header, visible=False, key='-COLDEALHDR-', expand_x=True),
+               sg.Column(layout_partner, visible=False, key='-COLPARTNER-', expand_x=True),
+               sg.Column(layout_opponents, visible=False, key='-COLOPPONENTS-', expand_x=True),
+               sg.Column(layout_user, visible=False, key='-COLUSER-', expand_x=True)],
               [sg.Button('Exit')]]
     
     window = sg.Window('Austin Codes Bridge', layout, finalize=True)
@@ -184,8 +200,10 @@ def main():
                 gu.fillTable(mainTable, values['-NAME-'], values['-POSITION-'])
                 print(gu.positionsToText(mainTable) + f"Your partner will be {mainTable.findPartner(mainTable.positions[values['-POSITION-']]).name}.")
                 window['-COLINTRO-'].update(visible=False)
-                window['-COLDEAL-'].update(visible=True)
-                du.centerWindow(window)
+                window['-COLDEALHDR-'].update(visible=True)
+                window['-COLPARTNER-'].update(visible=True)
+                window['-COLOPPONENTS-'].update(visible=True)
+                window['-COLUSER-'].update(visible=True)
                 while(playing):
                     print('Playing a new deal...')
                     playDeal(mainTable, values['-POSITION-'], window)

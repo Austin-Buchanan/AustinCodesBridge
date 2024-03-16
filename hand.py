@@ -124,3 +124,9 @@ class Hand:
         if highestCard.value != '':
             return highestCard
         return None
+    
+    def hasSuit(self, suitIn):
+        sublist = self.buildSubList(self.cards, suitIn)
+        if len(sublist) > 0:
+            return True
+        return False

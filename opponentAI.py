@@ -10,7 +10,7 @@ def findWinningHandCard(trick, player, table):
     if partner.name == winningCard.ownerName:
         return None
     winningHandCard = Card('', '', '')
-    for card in player.hand.cards:
+    for card in player.playerHand.cards:
         if winningHandCard.value == '' and (card.suit == trick.suitToFollow or card.suit == trick.trump):
             winningHandCard.copyCard(card)
         elif winningCard.compareCard(card, trick.suitToFollow, trick.trump) == card and card.compareCard(winningHandCard, trick.suitToFollow, trick.trump) == winningHandCard:
@@ -19,10 +19,12 @@ def findWinningHandCard(trick, player, table):
         return None
     return winningHandCard
 
-def findThrowAwayCard(hand):
+def findThrowAwayCard(hand, trump):
     throwCard = Card('', '', '')
     for card in hand.cards:
         if throwCard.value == '':
+            throwCard.copyCard(card)
+        elif throwCard.suit == trump and card.suit != trump:
             throwCard.copyCard(card)
         elif throwCard.valueHierarchy.index(throwCard.value) > card.valueHierarchy.index(card.value):
             throwCard.copyCard(card)
