@@ -1,4 +1,5 @@
 from gameUtilities import cardsToStr, tablePosToScreen
+import PySimpleGUI as sg
 
 def printDeck(deck):
     print('Printing deck...')

@@ -14,15 +14,15 @@ def handleCPUturn(window, key, player, trick, table):
 
     isPartnerWinning = False
     winningCard = trick.findCurrentWinner()
-    if table.findPartner(player).name == winningCard.ownerName:
+    if winningCard is not None and table.findPartner(player).name == winningCard.ownerName:
         isPartnerWinning = True
 
     if isPartnerWinning:
-        cardToPlay.copyCard(ai.findThrowAwayCard(player.hand, trick.trump))
+        cardToPlay.copyCard(ai.findThrowAwayCard(player.playerHand, trick.trump))
     else:
         winningHandCard = ai.findWinningHandCard(trick, player, table)
         if winningHandCard is None:
-            cardToPlay.copyCard(ai.findThrowAwayCard(player.hand, trick.trump))
+            cardToPlay.copyCard(ai.findThrowAwayCard(player.playerHand, trick.trump))
         else:
             cardToPlay.copyCard(winningHandCard)
 
@@ -152,7 +152,7 @@ def checkPlayAgain(window):
         elif event == 'Play Again':
             window['-NSSCORE-'].update('North-South Score: ')
             window['-EWSCORE-'].update('East-West Score: ')
-            window['-COLPLAYAGAIN-'].update(visible=False)
+            window['-COLPLAYAGAIN-'].hide_row()
             return True
     return False
 
@@ -174,17 +174,19 @@ def main():
                    [sg.Text('North-South Score: ', key='-NSSCORE-')],
                    [sg.Text('East-West Score: ', key='-EWSCORE-')]]
     layout_partner = [[sg.Text('Top Player', key='-TOPPLAYER-', justification='left')]]
-    layout_opponents = [[sg.Text('Left Player', key='-LEFTPLAYER-', justification='left'), sg.Text('Right Player', key='-RIGHTPLAYER-', justification='right')]]
-    layout_user = [[sg.Text('User', key='-USERPLAYER-')],
-                   [sg.Text('Player Input: ', key='-USERINPUTTEXT-')],
+    layout_left_player = [[sg.Text('Left Player', key='-LEFTPLAYER-', justification='left')]]
+    layout_right_player = [[sg.Text('Right Player', key='-RIGHTPLAYER-', justification='right')]]
+    layout_user = [[sg.Text('User', key='-USERPLAYER-', justification='left')]]
+    layout_user_input = [[sg.Text('Player Input: ', key='-USERINPUTTEXT-', justification='left')],
                    [sg.Input(key='-USERINPUT-'), sg.Button('Submit')],
                    [sg.Button('Play Low'), sg.Button('Play High')]]    
-    layout = [[sg.Column(layout_intro, key='-COLINTRO-'),
-               sg.Column(layout_play_again, visible=False, key='-COLPLAYAGAIN-'),
-               sg.Column(layout_deal_header, visible=False, key='-COLDEALHDR-', expand_x=True),
-               sg.Column(layout_partner, visible=False, key='-COLPARTNER-', expand_x=True),
-               sg.Column(layout_opponents, visible=False, key='-COLOPPONENTS-', expand_x=True),
-               sg.Column(layout_user, visible=False, key='-COLUSER-', expand_x=True)],
+    layout = [[sg.Column(layout_intro, key='-COLINTRO-', element_justification='left')],
+              [sg.Column(layout_play_again, visible=False, key='-COLPLAYAGAIN-', size=(None, None), pad=(0,0), element_justification='center')],
+              [sg.Column(layout_deal_header, visible=False, key='-COLDEALHDR-', size=(None, None), pad=(0,0))],
+              [sg.Column(layout_partner, visible=False, key='-COLPARTNER-', size=(None, None), pad=(0,0), element_justification='center')],
+              [sg.Column(layout_left_player, visible=False, key='-COLLEFTPLAYER-', element_justification='left'), sg.Column(layout_right_player, visible=False, key='-COLRIGHTPLAYER-', element_justification='right')],
+              [sg.Column(layout_user, visible=False, key='-COLUSER-', element_justification='center')],
+              [sg.Column(layout_user_input, visible=False, key='-COLUSERINPUT-')],
               [sg.Button('Exit')]]
     
     window = sg.Window('Austin Codes Bridge', layout, finalize=True)
@@ -199,11 +201,17 @@ def main():
             if values['-NAME-'] != '' and values['-POSITION-'] in positions:
                 gu.fillTable(mainTable, values['-NAME-'], values['-POSITION-'])
                 print(gu.positionsToText(mainTable) + f"Your partner will be {mainTable.findPartner(mainTable.positions[values['-POSITION-']]).name}.")
-                window['-COLINTRO-'].update(visible=False)
+                window['-COLINTRO-'].hide_row()
                 window['-COLDEALHDR-'].update(visible=True)
                 window['-COLPARTNER-'].update(visible=True)
-                window['-COLOPPONENTS-'].update(visible=True)
+                window['-COLPARTNER-'].expand(expand_x=True, expand_y=False)
+                window['-COLLEFTPLAYER-'].update(visible=True)
+                window['-COLLEFTPLAYER-'].expand(expand_x=True, expand_y=False)
+                window['-COLRIGHTPLAYER-'].update(visible=True)
+                window['-COLRIGHTPLAYER-'].expand(expand_x=True, expand_y=False)
                 window['-COLUSER-'].update(visible=True)
+                window['-COLUSER-'].expand(expand_x=True, expand_y=False)
+                window['-COLUSERINPUT-'].update(visible=True)
                 while(playing):
                     print('Playing a new deal...')
                     playDeal(mainTable, values['-POSITION-'], window)
