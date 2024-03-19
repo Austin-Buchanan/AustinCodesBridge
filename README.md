@@ -1,15 +1,11 @@
 # AutinCodesBridge
 
 ## Description
-This is a desktop application to play bridge with a 52 card deck.
+This is a desktop application to play bridge with a 52 card deck. The application was written in Python using the PySimpleGUI library to create the desktop GUI. The game runs with the user in the declarer position and their partner in the dummy position. 
 
 See the following Wikipedia article if you need an explanation for bridge: [Link](https://en.wikipedia.org/wiki/Contract_bridge)
 
-The application was written in Python using the PySimpleGUI library to create the desktop GUI.
-
 Currently the application only supports trick-taking, not bidding, although I may consider adding bidding at a later date. 
-
-The game runs with the user in the declarer position and their partner in the dummy position. 
 
 ## Motivation
 In my elementary school's gifted program, there was a unit to teach students how to play contract bridge. Bridge is an intellectually stimulating card game, especially when played competitively, and the unit had the end goal of readying students to compete in a youth tournament hosted by the American Contract Bridge League (ACBL). See [Link](https://www.acbl.org/) for more information on the ACBL. 
