@@ -38,9 +38,9 @@ def resolveUserPlay(player, trick, window):
     print(f"{player.name} plays {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}.")
     key = ''
     if player.isCPU:
-        key = '-TOPPLAYER-'
+        key = '-TOPPLAYERCARDS-'
     else:
-        key = '-USERPLAYER-'
+        key = '-USERPLAYERCARDS-'
     du.displayPlayerHand(key, player, window)
     previousText = window[key].get()
     window[key].update(previousText + f"\nCardPlayed - {trick.cardsPlayed[-1].suit + trick.cardsPlayed[-1].value}")
@@ -90,13 +90,14 @@ def playTrick(table, nextLeadPos, window, userPosition, trumpType):
 
     while len(trick.cardsPlayed) < 4:
         nextPlayer = table.positions[trick.whoseTurn]
+        layoutLocation = gu.tablePosToScreen(userPosition, nextPlayer.position)
+        du.updateTurnDisplay(layoutLocation, nextPlayer, window, table)
 
         if table.findPartner(userPlayer).position == nextPlayer.position:
             print("It's your partner's turn. What card should your partner play?")
             handleUserTurn(window, nextPlayer, trick)
         elif nextPlayer.isCPU:
-            layoutLocation = gu.tablePosToScreen(userPosition, nextPlayer.position)
-            keyString = '-' + layoutLocation.upper() + 'PLAYER-'
+            keyString = '-' + layoutLocation.upper() + 'PLAYERCARDS-'
             handleCPUturn(window, keyString, nextPlayer, trick, table)
         else:
             print("It's your turn. Enter a card from your hand in the player input box.")
@@ -172,11 +173,16 @@ def main():
     layout_deal_header = [[sg.Output(size=(50, 10))],
                    [sg.Text('Trump Suit: ', key='-TRUMPTEXT-')],
                    [sg.Text('North-South Score: ', key='-NSSCORE-')],
-                   [sg.Text('East-West Score: ', key='-EWSCORE-')]]
-    layout_partner = [[sg.Text('Top Player', key='-TOPPLAYER-', justification='left')]]
-    layout_left_player = [[sg.Text('Left Player', key='-LEFTPLAYER-', justification='left')]]
-    layout_right_player = [[sg.Text('Right Player', key='-RIGHTPLAYER-', justification='right')]]
-    layout_user = [[sg.Text('User', key='-USERPLAYER-', justification='left')]]
+                   [sg.Text('East-West Score: ', key='-EWSCORE-')],
+                   [sg.Text('Whose Turn: ', key='-TURNTEXT-')]]
+    layout_partner = [[sg.Text('', key='-TOPPLAYERHDR-', justification='left')],
+                      [sg.Text('', key='-TOPPLAYERCARDS-', justification='left')]]
+    layout_left_player = [[sg.Text('', key='-LEFTPLAYERHDR-', justification='left')],
+                          [sg.Text('', key='-LEFTPLAYERCARDS-', justification='left')]]
+    layout_right_player = [[sg.Text('', key='-RIGHTPLAYERHDR-',justification='right')],
+                           [sg.Text('', key='-RIGHTPLAYERCARDS-', justification='left')]]
+    layout_user = [[sg.Text('', key='-USERPLAYERHDR-', justification='left')],
+                   [sg.Text('', key='-USERPLAYERCARDS-', justification='left')]]
     layout_user_input = [[sg.Text('Player Input: ', key='-USERINPUTTEXT-', justification='left')],
                    [sg.Input(key='-USERINPUT-'), sg.Button('Submit')],
                    [sg.Button('Play Low'), sg.Button('Play High')]]    
@@ -200,7 +206,9 @@ def main():
         if event == 'Start':
             if values['-NAME-'] != '' and values['-POSITION-'] in positions:
                 gu.fillTable(mainTable, values['-NAME-'], values['-POSITION-'])
-                print(gu.positionsToText(mainTable) + f"Your partner will be {mainTable.findPartner(mainTable.positions[values['-POSITION-']]).name}.")
+                partner = mainTable.findPartner(mainTable.positions[values['-POSITION-']])
+                print(gu.positionsToText(mainTable) + f"Your partner will be {partner.name}.")
+                du.fillHeaders(window, mainTable)
                 window['-COLINTRO-'].hide_row()
                 window['-COLDEALHDR-'].update(visible=True)
                 window['-COLPARTNER-'].update(visible=True)

@@ -36,13 +36,13 @@ def printTrickScore(tableIn):
         print(f"{player.name} ({player.position}) - {player.tricksWon}")
 
 def displayPlayerHand(key, player, window):
-    window[key].update(f"{player.name} ({player.position}){cardsToStr(player.playerHand.cards)}")
+    window[key].update(f"{cardsToStr(player.playerHand.cards)}")
 
 def displayHiddenHand(key, player, window):
     if len(player.playerHand.cards) > 0:
-        window[key].update(f"{player.name} ({player.position})\n[{']'*len(player.playerHand.cards)}")
+        window[key].update(f"[{']'*len(player.playerHand.cards)}")
     else:
-        window[key].update(f"{player.name} ({player.position})")
+        window[key].update('')
 
 def displayCards(table, userPosition, window):
     positions = list(table.positions.keys())
@@ -50,15 +50,15 @@ def displayCards(table, userPosition, window):
         player = table.positions[position]
         player.playerHand.organizeHand()
         if table.findPartner(table.positions[userPosition]).position == position:
-            displayPlayerHand('-TOPPLAYER-', player, window)
+            displayPlayerHand('-TOPPLAYERCARDS-', player, window)
         elif position == userPosition:
-            displayPlayerHand('-USERPLAYER-', player, window)
+            displayPlayerHand('-USERPLAYERCARDS-', player, window)
         else:
             screenPos = tablePosToScreen(userPosition, position)
             if screenPos == 'left':
-                displayHiddenHand('-LEFTPLAYER-', player, window)
+                displayHiddenHand('-LEFTPLAYERCARDS-', player, window)
             else:
-                displayHiddenHand('-RIGHTPLAYER-', player, window)
+                displayHiddenHand('-RIGHTPLAYERCARDS-', player, window)
     centerWindowVert(window)
 
 def updateScoreDisplay(window, deal):
@@ -69,7 +69,33 @@ def updateScoreDisplay(window, deal):
 def centerWindowVert(window):
     screenSize = window.get_screen_size()
     windowSize = window.size
-    #x = (screenSize[0] - windowSize[0]) // 2
     y = (screenSize[1] - windowSize[1]) // 2
     window.move(window.CurrentLocation()[0], y)
     window.refresh()
+
+def updateTurnDisplay(location, player, window, table):
+    window['-TURNTEXT-'].update(f"Whose Turn: {player.name}")
+    fillHeaders(window, table, location)
+    window.refresh()
+
+def fillHeaders(window, table, turnSeat=None):
+    user = table.findUser()
+    partner = table.findPartner(user)
+    positions = list(table.positions.keys())
+    for position in positions:
+        if position == partner.position:
+            window['-TOPPLAYERHDR-'].update(f"{partner.name} ({partner.position})")
+            continue
+        if position == user.position:
+            window['-USERPLAYERHDR-'].update(f"{user.name} ({user.position})")
+            continue
+        seat = tablePosToScreen(user.position, position)
+        key = '-' + seat.upper() + 'PLAYERHDR-'
+        player = table.positions[position]
+        window[key].update(f"{player.name} ({player.position})")
+    if turnSeat is not None:
+        key = '-' + turnSeat.upper() + 'PLAYERHDR-'
+        currentText = window[key].get()
+        window[key].update(f"**{currentText}**")
+
+

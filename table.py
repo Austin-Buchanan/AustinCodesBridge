@@ -29,3 +29,7 @@ class Table:
             if playerInstance.name == playerName:
                 return position
             
+    def findUser(self):
+        for position, playerInstance in self.positions.items():
+            if not playerInstance.isCPU:
+                return playerInstance

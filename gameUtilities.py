@@ -49,26 +49,42 @@ def cardsToStr(cards):
                 diamondStr += card.value + ' '
             case 'C':
                 clubStr += card.value + ' '
-    return '\n' + spadeStr + '\n' + heartStr + '\n' + diamondStr + '\n' + clubStr     
+    return spadeStr + '\n' + heartStr + '\n' + diamondStr + '\n' + clubStr     
 
 def tablePosToScreen(userPos, inPos):
     match userPos:
         case 'north':
             if inPos == 'east':
                 return 'left'
-            return 'right'
+            elif inPos == 'south':
+                return 'top'
+            elif inPos == 'west':
+                return 'right'
+            return 'user'
         case 'east':
             if inPos == 'south':
                 return 'left'
-            return 'right'
+            elif inPos == 'west':
+                return 'top'
+            elif inPos == 'north':
+                return 'right'
+            return 'user'
         case 'south':
             if inPos == 'west':
                 return 'left'
-            return 'right'
+            elif inPos == 'north':
+                return 'top'
+            elif inPos == 'east':
+                return 'right'
+            return 'user'
         case 'west':
             if inPos == 'north':
                 return 'left'
-            return 'right'
+            elif inPos == 'east':
+                return 'top'
+            elif inPos == 'south':
+                return 'right'
+            return 'user'
     return ''
 
 def checkIfCard(strIn):
