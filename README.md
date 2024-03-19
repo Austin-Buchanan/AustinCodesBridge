@@ -3,12 +3,12 @@
 ## Description
 This is a desktop application to play bridge with a 52 card deck. The application was written in Python using the PySimpleGUI library to create the desktop GUI. The game runs with the user in the declarer position and their partner in the dummy position. 
 
-See the following Wikipedia article if you need an explanation for bridge: [Link](https://en.wikipedia.org/wiki/Contract_bridge)
+See the following Wikipedia article if you need an explanation for bridge: [https://en.wikipedia.org/wiki/Contract_bridge](https://en.wikipedia.org/wiki/Contract_bridge)
 
 Currently the application only supports trick-taking, not bidding, although I may consider adding bidding at a later date. 
 
 ## Motivation
-In my elementary school's gifted program, there was a unit to teach students how to play contract bridge. Bridge is an intellectually stimulating card game, especially when played competitively, and the unit had the end goal of readying students to compete in a youth tournament hosted by the American Contract Bridge League (ACBL). See [Link](https://www.acbl.org/) for more information on the ACBL. 
+In my elementary school's gifted program, there was a unit to teach students how to play contract bridge. Bridge is an intellectually stimulating card game, especially when played competitively, and the unit had the end goal of readying students to compete in a youth tournament hosted by the American Contract Bridge League (ACBL). See [https://www.acbl.org/](https://www.acbl.org/) for more information on the ACBL. 
 
 I enjoyed learning and playing bridge but didn't think I was an exceptional player. I was surprised, then, when my bridge partner and I won the tournament at the end of the unit. I returned to the tournament yearly until I was 16 or so, placing first or second each year I participated. I thought I might be good at this game after all. 
 
