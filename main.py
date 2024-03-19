@@ -120,7 +120,7 @@ def playDeal(table, userPosition, window):
     deck = Deck()
     deck.shuffle()
 
-    nextLeadPos = userPosition # replace if bidding is introduced in the future so other players can be the declarer, not just the user
+    nextLeadPos = gu.findLeaderPosition(userPosition) # replace if bidding is introduced in the future so other players can be the declarer, not just the user
 
     deal = Deal(table, deck, nextLeadPos)
 

@@ -204,3 +204,11 @@ def playHigh(hand, trick):
         return None
     trick.cardsPlayed.append(hand.playCard(highCard.suit, highCard.value))
     return 'success'
+
+def findLeaderPosition(userPosition):
+    positions = ['north', 'east', 'south', 'west']
+    userIndex = positions.index(userPosition)
+    if userIndex == 3:
+        return positions[0]
+    else:
+        return positions[userIndex + 1]
