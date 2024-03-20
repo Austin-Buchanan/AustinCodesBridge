@@ -57,3 +57,5 @@ When it's your turn or you're selecting which card your partner can play, type t
 If you're not playing the first card in a trick, you can also use the Play Low or Play High buttons to quickly play the highest or lowest card you or your partner has that follows suit. You can also type `high` or `low` in the text input field for the same operation. If there is no card that follows suit, or you are selecting the first card to play in the trick, you will have to type out the card to play. 
 
 At the end of the deal, the output area will say which partner pair has won the deal. A Play Again button will appear at the top of the window--click on this to start a new deal and continue playing. Otherwise, click on the Exit button at the bottom of the window or close out of the program. 
+
+![Play Again Example](https://github.com/Austin-Buchanan/AustinCodesBridge/blob/main/Images_and_Videos/Play_Again_Example.png)
