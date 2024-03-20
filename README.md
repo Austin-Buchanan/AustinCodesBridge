@@ -7,8 +7,9 @@ See the following Wikipedia article if you need an explanation for bridge: [http
 
 Currently the application only supports trick-taking, not bidding, although I may consider adding bidding at a later date. 
 
-The application has two main windows. Here is the introductory screen in action where you will enter your name and select which table position you would like to sit in:
-![Intro Recording](https://github.com/Austin-Buchanan/AustinCodesBridge/blob/main/Images_and_Videos/Intro_Recording.gif)
+Here is what the application looks like in action:
+
+![Demo Recording](https://github.com/Austin-Buchanan/AustinCodesBridge/blob/main/Images_and_Videos/AustinCodesBridge_Demo.gif)
 
 ## Motivation
 In my elementary school's gifted program, there was a unit to teach students how to play contract bridge. Bridge is an intellectually stimulating card game, especially when played competitively, and the unit had the end goal of readying students to compete in a youth tournament hosted by the American Contract Bridge League (ACBL). See [https://www.acbl.org/](https://www.acbl.org/) for more information on the ACBL. 
