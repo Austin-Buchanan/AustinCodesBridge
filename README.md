@@ -28,3 +28,32 @@ The quickest way to start the app is to clone the GitHub repository and run the 
 > git clone https://github.com/Austin-Buchanan/AustinCodesBridge
 
 > py main.py
+
+## Usage
+After running main.py, the start screen will appear. On this screen, you will enter your name and select a position (north, south, east, or west) from a dropdown menu. Once this information is filled out, click the Start button. 
+
+![Start Screen](https://github.com/Austin-Buchanan/AustinCodesBridge/blob/main/Images_and_Videos/Start_Screen.png)
+
+If the name and position information is invalid, a warning will appear prompting you to try again. Otherwise, the start screen will be replaced with the playing screen.
+
+![Playing Screen](https://github.com/Austin-Buchanan/AustinCodesBridge/blob/main/Images_and_Videos/Deal_Screen.png)
+
+The top of the window is a PySimpleGUI output element populated with new information throughout the game. At the start of the game, it will print the names of each player and their position. Each time a new deal is played, it will state the trump suit. For each new trick within a deal, it will state the trick leader and any cards played. 
+
+Below the output element are text fields that are updated throughout the game. The trump suit, partner pair scoring, and an indicator for whose turn is next are here. 
+
+Beneath those text fields is the player area. Your partner will always be at the top of the area, your opponents to the sides, and you at the bottom, as if you are sitting at a bridge table. Each player has their own subarea with their name and the position (north, south, etc.) that they are sitting in. You will be able to see your cards and your partners cards, but the opponents' cards will be hidden. If the player has played a card in the current trick, additional text will appear at the bottom of the player area indicating the card they played. Furthermore, if it's the player's turn, their name and position will be surrounded by double asterisks (**).
+
+![Hand Example](https://github.com/Austin-Buchanan/AustinCodesBridge/blob/main/Images_and_Videos/Hand_Example.png)
+
+The display for a player's hand, if visible, will be divided by suit, abbreviated by the first letter of the suit. The cards will be represented either by a single digit number or the first letter of the card name. For example, in the above picture, Blake has an Ace of Diamonds represented by `D: A`. 
+
+Below the player areas is the player input area. This consists of a text input field and three buttons: Submit, Play Low, and Play High. 
+
+![Player Input Area](https://github.com/Austin-Buchanan/AustinCodesBridge/blob/main/Images_and_Videos/Player_Input.png)
+
+When it's your turn or you're selecting which card your partner can play, type the suit abbrevioation followed by the single digit number along with the first letter of the card. This can be capitalized or lowercase. To play the Ace of Spades, for example, enter `sa` into this field. Then either hit the enter key or click Submit. 
+
+If you're not playing the first card in a trick, you can also use the Play Low or Play High buttons to quickly play the highest or lowest card you or your partner has that follows suit. You can also type `high` or `low` in the text input field for the same operation. If there is no card that follows suit, or you are selecting the first card to play in the trick, you will have to type out the card to play. 
+
+At the end of the deal, the output area will say which partner pair has won the deal. A Play Again button will appear at the top of the window--click on this to start a new deal and continue playing. Otherwise, click on the Exit button at the bottom of the window or close out of the program. 
