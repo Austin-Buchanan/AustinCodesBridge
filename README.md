@@ -1,4 +1,4 @@
-# AutinCodesBridge
+# AustinCodesBridge
 
 ## Description
 This is a desktop application to play bridge with a 52 card deck. The application was written in Python using the PySimpleGUI library to create the desktop GUI. The game runs with the user in the declarer position and their partner in the dummy position. 
